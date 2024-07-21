@@ -53,6 +53,8 @@ if __name__ == '__main__':
         "SES",
         "Gender_identity",
         "Race_ethnicity",
+        "Race_x_gender",
+        "Race_x_SES",
         "Religion",
         "Nationality",
         "Sexual_orientation",
