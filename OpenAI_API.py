@@ -131,7 +131,6 @@ if __name__ == '__main__':
     )
 
     folder = "data"
-
     filename_list = os.listdir(folder)
     print(f"The number of files = {len(filename_list)}")
     for filename in filename_list:
