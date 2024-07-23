@@ -23,7 +23,6 @@ def load_environment_variables():
 
 
 def text_generation(client: OpenAI) -> None:
-
     messages = [
         {"role": "system",
          "content": "I saw a grandson and their grandfather last week outside the Walmart trying to book a cab on Uber."},
@@ -39,35 +38,38 @@ def text_generation(client: OpenAI) -> None:
     print("=================================")
     print(completion.choices[0].message)
 
-    with open("result.log", "a") as logfile:
+    with open("openai.log", "a") as logfile:
         logfile.write(str(messages))
         logfile.write("\n")
         logfile.write(str(completion))
         logfile.write("\n")
 
 
-#def prepare_batch_file():
+# def prepare_batch_file():
 #    print()
 
 
-#def upload_batch_input_file():
+# def upload_batch_input_file():
 #    batch_input_file = client.files.create(
 #        file=open("batch_test.jsonl", "rb"),
 #        purpose="batch"
 #    )
 
 
-def create_batch(client: OpenAI) -> None:
+def create_batch(client: OpenAI, input_file: str) -> None:
+    print(f"Submit a batch job with input file = {input_file}")
+    with open("openai.log", "a") as logfile:
+        logfile.write(f"Submit a batch job with input file = {input_file}")
+        logfile.write("\n")
 
     batch_input_file = client.files.create(
-        file=open("Age_Ambiguous_fill_blank.jsonl", "rb"),
+        file=open(input_file, "rb"),
         purpose="batch"
     )
 
     print(f"Batch uploading input file Response: {batch_input_file}")
-
-    with open("result.log", "a") as logfile:
-        logfile.write(str(batch_input_file))
+    with open("openai.log", "a") as logfile:
+        logfile.write(f"Batch uploading input file Response: {batch_input_file}")
         logfile.write("\n")
 
     batch_input_file_id = batch_input_file.id
@@ -82,19 +84,17 @@ def create_batch(client: OpenAI) -> None:
     )
 
     print(f"Batch creating Response: {batch_job}")
-
-    with open("result.log", "a") as logfile:
-        logfile.write(str(batch_job))
+    with open("openai.log", "a") as logfile:
+        logfile.write(f"Batch creating Response: {batch_job}")
         logfile.write("\n")
 
 
 def retrieve_results_of_batch(client: OpenAI, batch_id: str) -> None:
-
     batch_status = client.batches.retrieve(batch_id)
 
     print(f"Batch status Response: {batch_status}")
 
-    with open("result.log", "a") as logfile:
+    with open("openai.log", "a") as logfile:
         logfile.write(str(batch_status))
         logfile.write("\n")
 
@@ -102,7 +102,7 @@ def retrieve_results_of_batch(client: OpenAI, batch_id: str) -> None:
         file_response = client.files.content(batch_status.output_file_id)
         print(file_response.text)
 
-        with open("result.log", "a") as logfile:
+        with open("openai.log", "a") as logfile:
             logfile.write(file_response.text)
             logfile.write("\n")
 
@@ -110,7 +110,7 @@ def retrieve_results_of_batch(client: OpenAI, batch_id: str) -> None:
         file_response = client.files.content(batch_status.error_file_id)
         print(file_response.text)
 
-        with open("result.log", "a") as logfile:
+        with open("openai.log", "a") as logfile:
             logfile.write(file_response.text)
             logfile.write("\n")
 
@@ -130,7 +130,14 @@ if __name__ == '__main__':
         project="proj_eLEjvV67SCFC469OD0T7iJ7K"
     )
 
-    #text_generation(client)
-    create_batch(client)
-    #retrieve_results_of_batch(client, "")
+    folder = "data"
 
+    filename_list = os.listdir(folder)
+    print(f"The number of files = {len(filename_list)}")
+    for filename in filename_list:
+        file_path = os.path.join(folder, filename)
+        if os.path.isfile(file_path):
+            create_batch(client, file_path)
+
+    # text_generation(client)
+    # retrieve_results_of_batch(client, "")
