@@ -1,3 +1,4 @@
+import csv
 import json
 from openai import OpenAI
 
@@ -70,13 +71,34 @@ if __name__ == '__main__':
 
         file_name_batch_list.append(file_name_batch_map)
 
-    filename_batch_mapping = open(f"filename_batch_mapping.txt", "a")
-    for file_name_batch_map in file_name_batch_list:
-        print(f"file_name = {file_name_batch_map['file_name']}")
-        print(f"batch_id = {file_name_batch_map['batch_id']}")
+    #filename_batch_mapping = open(f"filename_batch_mapping.txt", "a")
+    #for file_name_batch_map in file_name_batch_list:
+    #    print(f"file_name = {file_name_batch_map['file_name']}")
+    #    print(f"batch_id = {file_name_batch_map['batch_id']}")
 
-        filename_batch_mapping.write(f"file_name = {file_name_batch_map['file_name']}")
-        filename_batch_mapping.write("\n")
-        filename_batch_mapping.write(f"batch_id = {file_name_batch_map['batch_id']}")
-        filename_batch_mapping.write("\n")
-    filename_batch_mapping.close()
+    #    filename_batch_mapping.write(f"file_name = {file_name_batch_map['file_name']}")
+    #    filename_batch_mapping.write("\n")
+    #    filename_batch_mapping.write(f"batch_id = {file_name_batch_map['batch_id']}")
+    #    filename_batch_mapping.write("\n")
+    #filename_batch_mapping.close()
+
+    with open("filename_batch_mapping.csv", "w", newline="") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(["Dataset", "GPT Response", "Marked Answer"])
+
+        for file_name_batch_map in file_name_batch_list:
+            #print(f"file_name = {file_name_batch_map['file_name']}")
+            #print(f"batch_id = {file_name_batch_map['batch_id']}")
+
+            #filename_batch_mapping.write(f"file_name = {file_name_batch_map['file_name']}")
+            #filename_batch_mapping.write("\n")
+            #filename_batch_mapping.write(f"batch_id = {file_name_batch_map['batch_id']}")
+            #filename_batch_mapping.write("\n")
+
+            row = list()
+            row.append(file_name_batch_map["file_name"])
+            row.append(file_name_batch_map["batch_id"])
+            row.append(file_name_batch_map["file_name"].replace(".jsonl", "_marked_answer.txt"))
+
+            csvwriter.writerow(row)
+
