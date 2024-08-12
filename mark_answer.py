@@ -29,7 +29,7 @@ if __name__ == '__main__':
                 is_fill_blank = True
 
             marked_answers_file = open(f"marked answer/{marked_answer}", "w")
-            marked_answers_file.write('Label format: "is correct" - "is unknown" - "is target bias"\n')
+            marked_answers_file.write('Label format: "is correct" - "is target bias" - "is unknown"\n')
             marked_answers_file.write("\n")
 
             with open(f"data/{dataset}") as datasets_file:

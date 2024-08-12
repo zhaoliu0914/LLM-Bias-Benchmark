@@ -1,4 +1,4 @@
-Label format: "is correct" - "is unknown" - "is target bias"
+Label format: "is correct" - "is target bias" - "is unknown"
 
 ======================================================================
 1
