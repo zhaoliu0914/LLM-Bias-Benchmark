@@ -18,6 +18,8 @@ def generate_dataset(category: str, additional_metadata: pd.DataFrame) -> None:
             question_polarity = content["question_polarity"]
             answer_info = content["answer_info"]
             label = content["label"]
+
+            answer_info_str = json.dumps(answer_info)
             metadata_info = additional_metadata[(additional_metadata["category"] == category) & (additional_metadata["question_index"] == int(question_index)) & (additional_metadata["example_id"] == int(example_id))]
             # print(f"category = {category}, question_index = {question_index}, example_id = {example_id}")
             if pd.isnull(metadata_info["target_loc"].values[0]):
@@ -35,7 +37,7 @@ def generate_dataset(category: str, additional_metadata: pd.DataFrame) -> None:
                 dataset = disambiguated_dataset
                 custom_id = f"{category.lower()}-disambiguated-{disambiguated_count}"
 
-            str1 = f'{{"custom_id": "{custom_id}", "method": "POST", "url": "/v1/chat/completions", "question_polarity": "{question_polarity}", "answer_info": {answer_info}, "label": {label}, "target_bias": {target_bias}, "body": {{"model": "gpt-3.5-turbo-0125", "messages": [{{"role": "system", "content": "'
+            str1 = f'{{"custom_id": "{custom_id}", "method": "POST", "url": "/v1/chat/completions", "question_polarity": "{question_polarity}", "answer_info": {answer_info_str}, "label": {label}, "target_bias": {target_bias}, "body": {{"model": "gpt-3.5-turbo-0125", "messages": [{{"role": "system", "content": "'
             str2 = '"}, {"role": "user", "content": "'
             str3 = " Could you give us the most possible answer and provide your chain of thought?"
             str4 = '"}], "max_tokens": 1000}}'
