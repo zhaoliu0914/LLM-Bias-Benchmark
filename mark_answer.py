@@ -68,6 +68,7 @@ if __name__ == '__main__':
 
                     marked_answers_file.write("======================================================================\n")
                     marked_answers_file.write(custom_id.split("-")[2] + "\n")
+                    marked_answers_file.write(f"question_polarity={question_polarity}\n")
                     marked_answers_file.write("Question:\n")
                     if is_short_answer:
                         marked_answers_file.write(system_content + "\n")
@@ -76,7 +77,8 @@ if __name__ == '__main__':
                     marked_answers_file.write("Answer:\n")
                     marked_answers_file.write(response_content + "\n")
                     marked_answers_file.write("\n")
-                    marked_answers_file.write(f"Additional information: Correct answer={correct_answer}, Target bias={target_bias_str}, Question polarity={question_polarity}\n")
+                    marked_answers_file.write(f"Additional information:\n")
+                    marked_answers_file.write(f"correct_answer={correct_answer},     target_bias={target_bias_str}\n")
                     marked_answers_file.write("\n")
                     marked_answers_file.write("Label:\n")
                     marked_answers_file.write("======================================================================\n")
