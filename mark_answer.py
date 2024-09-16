@@ -29,8 +29,8 @@ if __name__ == '__main__':
                 is_fill_blank = True
 
             marked_answers_file = open(f"marked answer/{marked_answer}", "w")
-            marked_answers_file.write('Label format: "is correct" - "is target bias" - "is unknown"\n')
-            marked_answers_file.write("\n")
+            #marked_answers_file.write('Label format: "is correct" - "is target bias" - "is unknown"\n')
+            #marked_answers_file.write("\n")
 
             with open(f"data/{dataset}") as datasets_file:
                 with open(f"results/{batch_id}_output.jsonl") as batch_file:
@@ -74,11 +74,14 @@ if __name__ == '__main__':
                         marked_answers_file.write(system_content + "\n")
                     marked_answers_file.write(user_content + "\n")
                     marked_answers_file.write("\n")
-                    marked_answers_file.write("Answer:\n")
-                    marked_answers_file.write(response_content + "\n")
+                    marked_answers_file.write("Options:\n")
+                    marked_answers_file.write(f'0: {dataset_content["answer_info"][f"ans{0}"][0]}, 1: {dataset_content["answer_info"][f"ans{1}"][0]}, 2: {dataset_content["answer_info"][f"ans{2}"][0]}\n')
                     marked_answers_file.write("\n")
                     marked_answers_file.write(f"Additional information:\n")
-                    marked_answers_file.write(f"correct_answer={correct_answer},     target_bias={target_bias_str}\n")
+                    marked_answers_file.write(f"correct_answer={label}: {correct_answer},     target_bias={target_bias}: {target_bias_str}\n")
+                    marked_answers_file.write("\n")
+                    marked_answers_file.write("Answer:\n")
+                    marked_answers_file.write(response_content + "\n")
                     marked_answers_file.write("\n")
                     marked_answers_file.write("Label:\n")
                     marked_answers_file.write("======================================================================\n")

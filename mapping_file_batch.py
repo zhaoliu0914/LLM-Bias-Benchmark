@@ -82,7 +82,7 @@ if __name__ == '__main__':
     #    filename_batch_mapping.write("\n")
     #filename_batch_mapping.close()
 
-    with open("filename_batch_mapping.csv", "w", newline="") as csvfile:
+    with open("mapping files/dataset.csv", "w", newline="") as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(["Dataset", "GPT Response", "Marked Answer"])
 

@@ -1,3 +1,4 @@
 project.env
 .idea
 templates/*
+openai.log
