@@ -10,6 +10,7 @@ dataset_folder = "data"
 metadata_folder = "metadata"
 result_folder = "results"
 evaluation_folder = "evaluation"
+debiasing_folder = "debiasing"
 
 
 def generate_dataset(category: str, input_metadata: pd.DataFrame) -> None:

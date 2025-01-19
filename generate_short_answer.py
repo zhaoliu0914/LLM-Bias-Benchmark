@@ -11,6 +11,7 @@ dataset_folder = "data"
 metadata_folder = "metadata"
 result_folder = "results"
 evaluation_folder = "evaluation"
+debiasing_folder = "debiasing"
 
 
 def generate_dataset(category: str, input_metadata: pd.DataFrame) -> None:
@@ -92,7 +93,7 @@ def generate_evaluation_data() -> None:
             dataset_file_path = row[0]
             batch_id = row[1]
 
-            if "gpt3-5" in dataset_file_path:
+            if "debiasing" not in dataset_file_path:
                 continue
 
             if "fill_blank" in dataset_file_path or "multiple_choice" in dataset_file_path:
@@ -113,7 +114,13 @@ def generate_evaluation_data() -> None:
                         response_list.append(content)
 
                 metadata_list = []
-                with open(f"{metadata_folder}/{dataset_filename}_metadata.jsonl") as metadata_file:
+                metadata_filename = ""
+                if "debiasing" in dataset_file_path:
+                    underline_last_index = dataset_filename.rindex("_")
+                    metadata_filename = dataset_filename[0: underline_last_index] + "_metadata.jsonl"
+                else:
+                    metadata_filename = dataset_filename + "_metadata.jsonl"
+                with open(f"{metadata_folder}/{metadata_filename}") as metadata_file:
                     for row in metadata_file:
                         content = json.loads(row)
                         metadata_list.append(content)
@@ -121,8 +128,17 @@ def generate_evaluation_data() -> None:
                 for row in dataset:
                     content = json.loads(row)
                     custom_id = content["custom_id"]
-                    tokens = custom_id.split("-")
-                    index = tokens[len(tokens) - 1]
+
+                    # TODO: for test
+                    is_exist = False
+                    for response in response_list:
+                        response_custom_id = response["custom_id"]
+                        if response_custom_id == custom_id:
+                            is_exist = True
+                            break
+                    if is_exist is False:
+                        continue
+                    # TODO: for test
 
                     user_content = content["body"]["messages"][1]["content"]
                     tokens = user_content.split(".")
@@ -133,9 +149,7 @@ def generate_evaluation_data() -> None:
                     response_content = " Text: "
                     for response in response_list:
                         response_custom_id = response["custom_id"]
-                        tokens = response_custom_id.split("-")
-                        response_index = tokens[len(tokens) - 1]
-                        if response_index == index:
+                        if response_custom_id == custom_id:
                             response_content = response_content + response["response"]["body"]["choices"][0]["message"]["content"]
                             break
 
@@ -148,9 +162,7 @@ def generate_evaluation_data() -> None:
                     options = " Options: "
                     for metadata in metadata_list:
                         metadata_custom_id = metadata["custom_id"]
-                        tokens = metadata_custom_id.split("-")
-                        metadata_index = tokens[len(tokens) - 1]
-                        if metadata_index == index:
+                        if metadata_custom_id == custom_id:
                             options = options + "0: " + metadata["answer_info"]["ans0"][0] + " "
                             options = options + "1: " + metadata["answer_info"]["ans1"][0] + " "
                             options = options + "2: " + metadata["answer_info"]["ans2"][0] + " "
