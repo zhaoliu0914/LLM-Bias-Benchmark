@@ -114,12 +114,12 @@ def chat_completions_from_json(client: OpenAI, input_file: str) -> None:
 
 
 def submit_debias_single_file(file_path: str) -> str:
-    dataset_filename = file_path.split("/")[1]
+    dataset_filename = file_path.split(os.path.sep)[1]
     dataset_name = dataset_filename.split(".")[0]
     print(f"Processing debiasing file {dataset_name}")
 
-    response_filename = f"chat_completions_{dataset_name}"
-    debiasing_result_file = open(f"{result_folder}/{response_filename}.jsonl", "w")
+    response_filename = f"chat_completions_{dataset_name}.jsonl"
+    debiasing_result_file = open(f"{result_folder}/{response_filename}", "w")
 
     with open(file_path) as debiasing_file:
         for debiasing_row in debiasing_file:
@@ -160,7 +160,7 @@ def submit_debias(client: OpenAI) -> None:
     result_list = []
     count = 0
     print(f"The number of files in {debiasing_folder} path = {len(filename_list)}")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as thread_pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as thread_pool:
         for filename in filename_list:
             file_path = os.path.join(debiasing_folder, filename)
             if os.path.isfile(file_path) and "DS_Store" not in file_path:
@@ -171,7 +171,7 @@ def submit_debias(client: OpenAI) -> None:
 
     # Write dataset csv file
     csv_file = open("mapping files/dataset.csv", mode="a")
-    csv_writer = csv.writer(csv_file)
+    csv_writer = csv.writer(csv_file, dialect="unix")
     for file_path_list in result_list:
         file_path = file_path_list[0]
         future = file_path_list[1]
@@ -188,7 +188,7 @@ def submit_datasets(client: OpenAI) -> None:
     folder = "data"
     # setup for recording .csv file
     csv_file = open("mapping files/dataset.csv", mode="a")
-    csv_writer = csv.writer(csv_file)
+    csv_writer = csv.writer(csv_file, dialect="unix")
     #csv_writer.writerow(["dataset file", "batch job id"])
 
     filename_list = os.listdir(folder)
@@ -209,7 +209,7 @@ def submit_evaluation(client: OpenAI) -> None:
     folder = "evaluation"
     # setup for recording .csv file
     csv_file = open("mapping files/evaluation.csv", mode="a")
-    csv_writer = csv.writer(csv_file)
+    csv_writer = csv.writer(csv_file, dialect="unix")
     #csv_writer.writerow(["evaluation file", "batch job id"])
     count = 0
     filename_list = os.listdir(folder)
@@ -296,8 +296,8 @@ if __name__ == '__main__':
     print(f"OPENAI_API_KEY = {key}")
 
     client = OpenAI(
-        organization="org-BEWHqxyW4XmUhPVB1FftxbxM",
-        project="proj_eLEjvV67SCFC469OD0T7iJ7K"
+        organization="org-blJHMxIDmlFisdZzaopJaeoo",
+        project="proj_p5GBQ0hdASsiSojvSGnYLoNP"
     )
 
     #chat_completions(client)
