@@ -26,7 +26,7 @@ if __name__ == '__main__':
             dataset_file_path = row[0]
             batch_id = row[1]
 
-            if "self-consistency" not in dataset_file_path:
+            if "debiasing" not in dataset_file_path:
                 continue
             if MULTIPLE_CHOICE in dataset_file_path:
                 continue
@@ -82,8 +82,11 @@ if __name__ == '__main__':
 
                     response_content = response_content.replace("\t", " ")
                     response_content = re.sub(r"\\(?!n)", "", response_content)
+                    response_content = re.sub(r"[\x00-\x1F\x7F]", "", response_content)
                     response_content = response_content.replace("\n", "\\n")
+                    response_content = response_content.replace("\r", "")
                     response_content = response_content.replace('"', '\\"')
+                    response_content = response_content.replace("\u2019", "'")
 
                     unknown_option = ""
                     options = " Options: "
@@ -198,7 +201,7 @@ if __name__ == '__main__':
 
                     evaluation_file.write(str1)
                     evaluation_file.write(question + "\\n")
-                    evaluation_file.write(response_content + "\\n")
+                    evaluation_file.write(response_content.encode("ascii", errors="ignore").decode() + "\\n")
                     evaluation_file.write(options)
                     evaluation_file.write(str2)
                     evaluation_file.write("\n")

@@ -118,8 +118,8 @@ def submit_debias_single_file(file_path: str) -> str:
     dataset_name = dataset_filename.split(".")[0]
     print(f"Processing debiasing file {dataset_name}")
 
-    response_filename = f"chat_completions_{dataset_name}.jsonl"
-    debiasing_result_file = open(f"{result_folder}/{response_filename}", "w")
+    response_filename = f"chat_completions_{dataset_name}"
+    debiasing_result_file = open(f"{result_folder}/{response_filename}.jsonl", "w")
 
     with open(file_path) as debiasing_file:
         for debiasing_row in debiasing_file:
@@ -171,7 +171,7 @@ def submit_debias(client: OpenAI) -> None:
 
     # Write dataset csv file
     csv_file = open("mapping files/dataset.csv", mode="a")
-    csv_writer = csv.writer(csv_file, dialect="unix")
+    csv_writer = csv.writer(csv_file, lineterminator="\n")
     for file_path_list in result_list:
         file_path = file_path_list[0]
         future = file_path_list[1]
@@ -188,7 +188,7 @@ def submit_datasets(client: OpenAI) -> None:
     folder = "data"
     # setup for recording .csv file
     csv_file = open("mapping files/dataset.csv", mode="a")
-    csv_writer = csv.writer(csv_file, dialect="unix")
+    csv_writer = csv.writer(csv_file, lineterminator="\n")
     #csv_writer.writerow(["dataset file", "batch job id"])
 
     filename_list = os.listdir(folder)
@@ -209,17 +209,16 @@ def submit_evaluation(client: OpenAI) -> None:
     folder = "evaluation"
     # setup for recording .csv file
     csv_file = open("mapping files/evaluation.csv", mode="a")
-    csv_writer = csv.writer(csv_file, dialect="unix")
+    csv_writer = csv.writer(csv_file, lineterminator="\n")
     #csv_writer.writerow(["evaluation file", "batch job id"])
     count = 0
     filename_list = os.listdir(folder)
     print(f"The number of files in {folder} = {len(filename_list)}")
     for filename in filename_list:
-        if "self-consistency" in filename:
+        if "debiasing" in filename:
             file_path = os.path.join(folder, filename)
             if os.path.isfile(file_path):
                 count = count + 1
-
                 batch_job_id = create_batch(client, file_path)
 
                 csv_writer.writerow([file_path, batch_job_id])
@@ -271,7 +270,7 @@ def retrieve_results_of_batch(client: OpenAI, input_csv: str, output_folder: str
             dataset_filename = row[0]
             batch_id = row[1]
 
-            if "self-consistency" in dataset_filename:
+            if "debiasing" in dataset_filename:
                 batch_status = client.batches.retrieve(batch_id)
                 print(f"Batch id = {batch_id}, Batch status Response: {batch_status}")
 
@@ -307,7 +306,7 @@ if __name__ == '__main__':
     #submit_datasets(client)
     #submit_evaluation(client)
 
-    submit_debias(client)
+    #submit_debias(client)
 
     #retrieve_results_of_batch(client, "mapping files/dataset.csv", "results")
     #retrieve_results_of_batch(client, "mapping files/evaluation.csv", "results")
