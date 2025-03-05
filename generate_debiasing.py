@@ -25,7 +25,7 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "disambiguated" in dataset_input_file:
+            if "ambiguous" in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]

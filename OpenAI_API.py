@@ -65,52 +65,46 @@ def chat_completions_from_json(client: OpenAI, input_file: str) -> None:
     tokens = input_file.split(".")[0].split("/")
     file_name = tokens[len(tokens) -1]
 
-    output_file = open(f"evaluation results/{file_name}.txt", mode="w")
+    with open(f"evaluation results/{file_name}.txt", mode="w") as output_file:
+        with open(f"{input_file}") as json_file:
+            for row in json_file:
+                content = json.loads(row)
+                custom_id = content["custom_id"]
+                system_content = content["body"]["messages"][0]["content"]
+                user_content = content["body"]["messages"][1]["content"]
 
-    with open(f"{input_file}") as json_file:
-        for row in json_file:
-            content = json.loads(row)
-            custom_id = content["custom_id"]
-            system_content = content["body"]["messages"][0]["content"]
-            user_content = content["body"]["messages"][1]["content"]
+                print(f"Processing custom_id = {custom_id}")
 
-            print(f"Processing custom_id = {custom_id}")
+                completion = client.chat.completions.create(
+                    #model="chatgpt-4o-latest",
+                    model="gpt-4o",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": f"{system_content}"
+                        },
+                        {
+                            "role": "user",
+                            "content": f" {user_content} "
+                        }
+                    ],
+                    temperature=0,
+                    n=1
+                )
 
-            completion = client.chat.completions.create(
-                #model="chatgpt-4o-latest",
-                model="gpt-4o",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": f"{system_content}"
-                    },
-                    {
-                        "role": "user",
-                        "content": f" {user_content} "
-                    }
-                ],
-                temperature=0,
-                n=1
-            )
-
-            output_file.write("======================================================================\n")
-            output_file.write(custom_id + "\n")
-            output_file.write("Question:" + "\n")
-            output_file.write(system_content + "\n")
-            output_file.write(user_content + "\n")
-            output_file.write("\n")
-            output_file.write("Answer: " + "\n")
-            output_file.write(completion.choices[0].message.content + "\n")
-            output_file.write("\n")
-            output_file.write("Label:\n")
-            output_file.write("======================================================================\n")
-            output_file.write("\n")
-            output_file.write("\n")
-
-    #print(completion)
-    #print("=================================")
-    #print(completion.choices[0].message)
-    output_file.close()
+                output_file.write("======================================================================\n")
+                output_file.write(custom_id + "\n")
+                output_file.write("Question:" + "\n")
+                output_file.write(system_content + "\n")
+                output_file.write(user_content + "\n")
+                output_file.write("\n")
+                output_file.write("Answer: " + "\n")
+                output_file.write(completion.choices[0].message.content + "\n")
+                output_file.write("\n")
+                output_file.write("Label:\n")
+                output_file.write("======================================================================\n")
+                output_file.write("\n")
+                output_file.write("\n")
 
 
 def submit_debias_single_file(file_path: str) -> str:
@@ -119,39 +113,37 @@ def submit_debias_single_file(file_path: str) -> str:
     print(f"Processing debiasing file {dataset_name}")
 
     response_filename = f"chat_completions_{dataset_name}"
-    debiasing_result_file = open(f"{result_folder}/{response_filename}.jsonl", "w")
+    with open(f"{result_folder}/{response_filename}.jsonl", "w") as debiasing_result_file:
+        with open(file_path) as debiasing_file:
+            for debiasing_row in debiasing_file:
+                debiasing_content = json.loads(debiasing_row)
+                custom_id = debiasing_content["custom_id"]
+                messages_str = debiasing_content["body"]["messages"]
+                model = debiasing_content["body"]["model"]
 
-    with open(file_path) as debiasing_file:
-        for debiasing_row in debiasing_file:
-            debiasing_content = json.loads(debiasing_row)
-            custom_id = debiasing_content["custom_id"]
-            messages_str = debiasing_content["body"]["messages"]
-            model = debiasing_content["body"]["model"]
+                completion = client.chat.completions.create(
+                    model=model,
+                    messages=messages_str,
+                )
+                chat_model = completion.model
+                response_str = completion.choices[0].message.content
+                # print(f"response_str = {response_str}")
 
-            completion = client.chat.completions.create(
-                model=model,
-                messages=messages_str,
-            )
-            chat_model = completion.model
-            response_str = completion.choices[0].message.content
-            # print(f"response_str = {response_str}")
-
-            content = dict()
-            message = dict()
-            choices = dict()
-            body = dict()
-            response = dict()
-            content["content"] = response_str
-            message["message"] = content
-            choices["model"] = chat_model
-            choices["choices"] = [message]
-            body["body"] = choices
-            response["custom_id"] = custom_id
-            response["response"] = body
-            response_json_str = json.dumps(response)
-            # print(f"response_json_str = {response_json_str}")
-            debiasing_result_file.write(response_json_str + "\n")
-    debiasing_result_file.close()
+                content = dict()
+                message = dict()
+                choices = dict()
+                body = dict()
+                response = dict()
+                content["content"] = response_str
+                message["message"] = content
+                choices["model"] = chat_model
+                choices["choices"] = [message]
+                body["body"] = choices
+                response["custom_id"] = custom_id
+                response["response"] = body
+                response_json_str = json.dumps(response)
+                # print(f"response_json_str = {response_json_str}")
+                debiasing_result_file.write(response_json_str + "\n")
     return response_filename
 
 
@@ -163,21 +155,21 @@ def submit_debias(client: OpenAI) -> None:
     with concurrent.futures.ThreadPoolExecutor(max_workers=30) as thread_pool:
         for filename in filename_list:
             file_path = os.path.join(debiasing_folder, filename)
-            if os.path.isfile(file_path) and "DS_Store" not in file_path:
+            if os.path.isfile(file_path) and "DS_Store" not in file_path and "disambiguated" in file_path:
                 count = count + 1
 
                 future = thread_pool.submit(submit_debias_single_file, file_path)
                 result_list.append([file_path, future])
 
-    # Write dataset csv file
-    csv_file = open("mapping files/dataset.csv", mode="a")
-    csv_writer = csv.writer(csv_file, lineterminator="\n")
-    for file_path_list in result_list:
-        file_path = file_path_list[0]
-        future = file_path_list[1]
-        csv_writer.writerow([file_path, future.result()])
-    csv_file.close()
     print(f"Submitted {count} files from {debiasing_folder} to OpenAI API.")
+    # Write dataset csv file
+    with open("mapping files/dataset.csv", mode="a") as csv_file:
+        csv_writer = csv.writer(csv_file, lineterminator="\n")
+        for file_path_list in result_list:
+            file_path = file_path_list[0]
+            future = file_path_list[1]
+            csv_writer.writerow([file_path, future.result()])
+
 
 
 def submit_single_dataset(client: OpenAI) -> None:
@@ -187,43 +179,40 @@ def submit_datasets(client: OpenAI) -> None:
     # setup for input folder
     folder = "data"
     # setup for recording .csv file
-    csv_file = open("mapping files/dataset.csv", mode="a")
-    csv_writer = csv.writer(csv_file, lineterminator="\n")
-    #csv_writer.writerow(["dataset file", "batch job id"])
+    with open("mapping files/dataset.csv", mode="a") as csv_file:
+        csv_writer = csv.writer(csv_file, lineterminator="\n")
+        #csv_writer.writerow(["dataset file", "batch job id"])
 
-    filename_list = os.listdir(folder)
-    print(f"The number of files = {len(filename_list)}")
-    for filename in filename_list:
-        if "gpt4o" in filename:
-            file_path = os.path.join(folder, filename)
-            if os.path.isfile(file_path):
-                batch_job_id = create_batch(client, file_path)
+        filename_list = os.listdir(folder)
+        print(f"The number of files = {len(filename_list)}")
+        for filename in filename_list:
+            if "gpt4o" in filename:
+                file_path = os.path.join(folder, filename)
+                if os.path.isfile(file_path):
+                    batch_job_id = create_batch(client, file_path)
 
-                csv_writer.writerow([file_path, batch_job_id])
-
-    csv_file.close()
+                    csv_writer.writerow([file_path, batch_job_id])
 
 
 def submit_evaluation(client: OpenAI) -> None:
     # setup for input folder
     folder = "evaluation"
     # setup for recording .csv file
-    csv_file = open("mapping files/evaluation.csv", mode="a")
-    csv_writer = csv.writer(csv_file, lineterminator="\n")
-    #csv_writer.writerow(["evaluation file", "batch job id"])
-    count = 0
-    filename_list = os.listdir(folder)
-    print(f"The number of files in {folder} = {len(filename_list)}")
-    for filename in filename_list:
-        if "debiasing" in filename:
-            file_path = os.path.join(folder, filename)
-            if os.path.isfile(file_path):
-                count = count + 1
-                batch_job_id = create_batch(client, file_path)
+    with open("mapping files/evaluation.csv", mode="a") as csv_file:
+        csv_writer = csv.writer(csv_file, lineterminator="\n")
+        #csv_writer.writerow(["evaluation file", "batch job id"])
+        count = 0
+        filename_list = os.listdir(folder)
+        print(f"The number of files in {folder} = {len(filename_list)}")
+        for filename in filename_list:
+            if "debiasing" in filename:
+                file_path = os.path.join(folder, filename)
+                if os.path.isfile(file_path):
+                    count = count + 1
+                    batch_job_id = create_batch(client, file_path)
 
-                csv_writer.writerow([file_path, batch_job_id])
+                    csv_writer.writerow([file_path, batch_job_id])
 
-    csv_file.close()
     print(f"Submitted {count} files from {folder} to OpenAI API.")
 
 
@@ -306,7 +295,7 @@ if __name__ == '__main__':
     #submit_datasets(client)
     #submit_evaluation(client)
 
-    #submit_debias(client)
+    submit_debias(client)
 
     #retrieve_results_of_batch(client, "mapping files/dataset.csv", "results")
     #retrieve_results_of_batch(client, "mapping files/evaluation.csv", "results")
