@@ -28,6 +28,8 @@ if __name__ == '__main__':
 
             if "debiasing" not in dataset_file_path:
                 continue
+            if "ambiguous" in dataset_file_path:
+                continue
             if MULTIPLE_CHOICE in dataset_file_path:
                 continue
 

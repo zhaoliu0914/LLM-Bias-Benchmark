@@ -3,6 +3,8 @@ import csv
 import json
 import random
 import concurrent.futures
+from time import sleep
+
 from openai import OpenAI
 
 
@@ -173,7 +175,7 @@ def submit_debias(client: OpenAI) -> None:
 
 
 def submit_single_dataset(client: OpenAI) -> None:
-    batch_job_id = create_batch(client, "data/disability_status_ambiguous_multiple_choice_gpt3-5.jsonl")
+    batch_job_id = create_batch(client, "evaluation/physical_appearance_disambiguated_fill_blank_gpt3-5_self-new-debiasing.jsonl")
 
 def submit_datasets(client: OpenAI) -> None:
     # setup for input folder
@@ -205,13 +207,16 @@ def submit_evaluation(client: OpenAI) -> None:
         filename_list = os.listdir(folder)
         print(f"The number of files in {folder} = {len(filename_list)}")
         for filename in filename_list:
-            if "debiasing" in filename:
+            if "debiasing" in filename and "disambiguated" in filename:
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
-                    count = count + 1
+                    count += 1
                     batch_job_id = create_batch(client, file_path)
 
                     csv_writer.writerow([file_path, batch_job_id])
+
+                    if count == 50 or count == 100:
+                        sleep(1800)
 
     print(f"Submitted {count} files from {folder} to OpenAI API.")
 
@@ -259,7 +264,7 @@ def retrieve_results_of_batch(client: OpenAI, input_csv: str, output_folder: str
             dataset_filename = row[0]
             batch_id = row[1]
 
-            if "debiasing" in dataset_filename:
+            if "debiasing" in dataset_filename and "disambiguated" in dataset_filename:
                 batch_status = client.batches.retrieve(batch_id)
                 print(f"Batch id = {batch_id}, Batch status Response: {batch_status}")
 
@@ -295,9 +300,9 @@ if __name__ == '__main__':
     #submit_datasets(client)
     #submit_evaluation(client)
 
-    submit_debias(client)
+    #submit_debias(client)
 
     #retrieve_results_of_batch(client, "mapping files/dataset.csv", "results")
-    #retrieve_results_of_batch(client, "mapping files/evaluation.csv", "results")
+    retrieve_results_of_batch(client, "mapping files/evaluation.csv", "results")
 
 

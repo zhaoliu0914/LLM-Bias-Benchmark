@@ -158,108 +158,6 @@ def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
                     f"dataset = {dataset}, bias score = {bias_score_map[dataset]}, accuracy = {accuracy_map[dataset]}")
 
 
-def evaluation_plot_tables(data_map: dict) -> None:
-    categories = [
-        "age",
-        "disability_status",
-        "gender_identity",
-        "nationality",
-        "physical_appearance",
-        "race_ethnicity",
-        "religion",
-        "sexual_orientation",
-        "ses",
-        "race_x_gender",
-        "race_x_ses",
-    ]
-
-    ambiguous_data = []
-    disambiguated_data = []
-
-    for category in categories:
-        ambiguous_multiple_choice_gpt3_5 = round(data_map[f"{category}_ambiguous_multiple_choice_gpt3-5"], 3)
-        ambiguous_fill_blank_gpt3_5 = round(data_map[f"{category}_ambiguous_fill_blank_gpt3-5"], 3)
-        ambiguous_short_answer_gpt3_5 = round(data_map[f"{category}_ambiguous_short_answer_gpt3-5"], 3)
-
-        ambiguous_multiple_choice_gpt4o = round(data_map[f"{category}_ambiguous_multiple_choice_gpt4o"], 3)
-        ambiguous_fill_blank_gpt4o = round(data_map[f"{category}_ambiguous_fill_blank_gpt4o"], 3)
-        ambiguous_short_answer_gpt4o = round(data_map[f"{category}_ambiguous_short_answer_gpt4o"], 3)
-
-        disambiguated_multiple_choice_gpt3_5 = round(data_map[f"{category}_disambiguated_multiple_choice_gpt3-5"], 3)
-        disambiguated_fill_blank_gpt3_5 = round(data_map[f"{category}_disambiguated_fill_blank_gpt3-5"], 3)
-        disambiguated_short_answer_gpt3_5 = round(data_map[f"{category}_disambiguated_short_answer_gpt3-5"], 3)
-        disambiguated_multiple_choice_gpt4o = round(data_map[f"{category}_disambiguated_multiple_choice_gpt4o"], 3)
-        disambiguated_fill_blank_gpt4o = round(data_map[f"{category}_disambiguated_fill_blank_gpt4o"], 3)
-        disambiguated_short_answer_gpt4o = round(data_map[f"{category}_disambiguated_short_answer_gpt4o"], 3)
-
-        ambiguous_list = [ambiguous_multiple_choice_gpt3_5, ambiguous_fill_blank_gpt3_5, ambiguous_short_answer_gpt3_5,
-                          ambiguous_multiple_choice_gpt4o, ambiguous_fill_blank_gpt4o, ambiguous_short_answer_gpt4o]
-        disambiguated_list = [disambiguated_multiple_choice_gpt3_5, disambiguated_fill_blank_gpt3_5,
-                              disambiguated_short_answer_gpt3_5, disambiguated_multiple_choice_gpt4o,
-                              disambiguated_fill_blank_gpt4o, disambiguated_short_answer_gpt4o]
-        ambiguous_data.append(ambiguous_list)
-        disambiguated_data.append(disambiguated_list)
-
-    color_range = ["midnightblue", "white", "darkred"]
-    colormap = matplotlib.colors.LinearSegmentedColormap.from_list("custom_cmap", color_range, N=256)
-
-    ambiguous_colors = [[colormap((value + 1) / 2) for value in row] for row in ambiguous_data]
-    disambiguated_colors = [[colormap((value + 1) / 2) for value in row] for row in disambiguated_data]
-
-    column_labels = ["Multiple Choice\n GPT-3.5", "Fill in Blank\n GPT-3.5", "Short Answer\n GPT-3.5",
-                     "Multiple Choice\n GPT-4o", "Fill in Blank\n GPT-4o", "Short Answer\n GPT-4o"]
-
-    # ambiguous_data_percent = [[str(value*100)+"%" for value in row] for row in ambiguous_data]
-    # disambiguated_data_percent = [[str(value * 100)+"%" for value in row] for row in disambiguated_data]
-
-    # Plot ambiguous table
-    fig, ambiguous_ax = plt.subplots(figsize=(10, 5))  # figsize=(12, 6)
-    ambiguous_ax.xaxis.set_visible(False)
-    ambiguous_ax.yaxis.set_visible(False)
-    ambiguous_ax.set_frame_on(False)
-    ambiguous_table = ambiguous_ax.table(
-        cellText=ambiguous_data,
-        cellColours=ambiguous_colors,
-        rowLabels=categories,
-        colLabels=column_labels,
-        cellLoc="center",
-        loc="center",
-        bbox=[0, 0, 1, 1]  # Use the bounding box to fit within the figure
-    )
-    ambiguous_table.auto_set_font_size(False)
-    ambiguous_table.set_fontsize(10)
-    ambiguous_table.scale(1.5, 1.5)
-    plt.tight_layout()
-    # plt.subplots_adjust(top=0.8)
-    # plt.title(f"Ambiguous {data_name}")
-    plt.show()
-    fig.savefig("ambiguous_benchmark.pdf")
-
-    # Plot disambiguated table
-    fig, disambiguated_ax = plt.subplots(figsize=(10, 5))
-    disambiguated_ax.xaxis.set_visible(False)
-    disambiguated_ax.yaxis.set_visible(False)
-    disambiguated_ax.set_frame_on(False)
-    disambiguated_table = disambiguated_ax.table(
-        cellText=disambiguated_data,
-        cellColours=disambiguated_colors,
-        rowLabels=categories,
-        colLabels=column_labels,
-        cellLoc="center",
-        loc="center",
-        bbox=[0, 0, 1, 1]  # Use the bounding box to fit within the figure
-    )
-    disambiguated_table.auto_set_font_size(False)
-    disambiguated_table.set_fontsize(10)
-    disambiguated_table.scale(1.5, 1.5)
-
-    plt.tight_layout()
-    # plt.subplots_adjust(top=0.8)
-    # plt.title(f"Disambiguated {data_name}")
-    plt.show()
-    fig.savefig("disambiguated_benchmark.pdf")
-
-
 def plot_tables(table_type: str, data_map: dict) -> None:
     categories = [
         "age",
@@ -279,6 +177,7 @@ def plot_tables(table_type: str, data_map: dict) -> None:
     disambiguated_data = []
 
     for category in categories:
+        # Ambiguous parts
         ambiguous_multiple_choice_gpt3_5 = round(data_map[f"{category}_ambiguous_multiple_choice_gpt3-5"], 3)
         ambiguous_multiple_choice_gpt3_5_self_debiasing = round(
             data_map[f"{category}_ambiguous_multiple_choice_gpt3-5_self-debiasing"], 3)
@@ -327,12 +226,55 @@ def plot_tables(table_type: str, data_map: dict) -> None:
         ambiguous_short_answer_gpt4o_combine_debiasing = round(
             data_map[f"{category}_ambiguous_short_answer_gpt4o_combine-debiasing"], 3)
 
+        # Disambiguate parts
         disambiguated_multiple_choice_gpt3_5 = round(data_map[f"{category}_disambiguated_multiple_choice_gpt3-5"], 3)
+        disambiguated_multiple_choice_gpt3_5_self_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt3-5_self-debiasing"], 3)
+        disambiguated_multiple_choice_gpt3_5_new_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt3-5_self-new-debiasing"], 3)
+        disambiguated_multiple_choice_gpt3_5_combine_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt3-5_combine-debiasing"], 3)
+
         disambiguated_fill_blank_gpt3_5 = round(data_map[f"{category}_disambiguated_fill_blank_gpt3-5"], 3)
+        disambiguated_fill_blank_gpt3_5_self_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt3-5_self-debiasing"], 3)
+        disambiguated_fill_blank_gpt3_5_new_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt3-5_self-new-debiasing"], 3)
+        disambiguated_fill_blank_gpt3_5_combine_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt3-5_combine-debiasing"], 3)
+
         disambiguated_short_answer_gpt3_5 = round(data_map[f"{category}_disambiguated_short_answer_gpt3-5"], 3)
+        disambiguated_short_answer_gpt3_5_self_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt3-5_self-debiasing"], 3)
+        disambiguated_short_answer_gpt3_5_new_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt3-5_self-new-debiasing"], 3)
+        disambiguated_short_answer_gpt3_5_combine_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt3-5_combine-debiasing"], 3)
+
         disambiguated_multiple_choice_gpt4o = round(data_map[f"{category}_disambiguated_multiple_choice_gpt4o"], 3)
+        disambiguated_multiple_choice_gpt4o_self_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt4o_self-debiasing"], 3)
+        disambiguated_multiple_choice_gpt4o_new_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt4o_self-new-debiasing"], 3)
+        disambiguated_multiple_choice_gpt4o_combine_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt4o_combine-debiasing"], 3)
+
         disambiguated_fill_blank_gpt4o = round(data_map[f"{category}_disambiguated_fill_blank_gpt4o"], 3)
+        disambiguated_fill_blank_gpt4o_self_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt4o_self-debiasing"], 3)
+        disambiguated_fill_blank_gpt4o_new_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt4o_self-new-debiasing"], 3)
+        disambiguated_fill_blank_gpt4o_combine_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt4o_combine-debiasing"], 3)
+
         disambiguated_short_answer_gpt4o = round(data_map[f"{category}_disambiguated_short_answer_gpt4o"], 3)
+        disambiguated_short_answer_gpt4o_self_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt4o_self-debiasing"], 3)
+        disambiguated_short_answer_gpt4o_new_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt4o_self-new-debiasing"], 3)
+        disambiguated_short_answer_gpt4o_combine_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt4o_combine-debiasing"], 3)
+
 
         ambiguous_list = [ambiguous_multiple_choice_gpt3_5,
                           ambiguous_multiple_choice_gpt3_5_self_debiasing,
@@ -360,11 +302,29 @@ def plot_tables(table_type: str, data_map: dict) -> None:
                           ambiguous_short_answer_gpt4o_combine_debiasing
                           ]
         disambiguated_list = [disambiguated_multiple_choice_gpt3_5,
+                              disambiguated_multiple_choice_gpt3_5_self_debiasing,
+                              disambiguated_multiple_choice_gpt3_5_new_debiasing,
+                              disambiguated_multiple_choice_gpt3_5_combine_debiasing,
                               disambiguated_fill_blank_gpt3_5,
+                              disambiguated_fill_blank_gpt3_5_self_debiasing,
+                              disambiguated_fill_blank_gpt3_5_new_debiasing,
+                              disambiguated_fill_blank_gpt3_5_combine_debiasing,
                               disambiguated_short_answer_gpt3_5,
+                              disambiguated_short_answer_gpt3_5_self_debiasing,
+                              disambiguated_short_answer_gpt3_5_new_debiasing,
+                              disambiguated_short_answer_gpt3_5_combine_debiasing,
                               disambiguated_multiple_choice_gpt4o,
+                              disambiguated_multiple_choice_gpt4o_self_debiasing,
+                              disambiguated_multiple_choice_gpt4o_new_debiasing,
+                              disambiguated_multiple_choice_gpt4o_combine_debiasing,
                               disambiguated_fill_blank_gpt4o,
-                              disambiguated_short_answer_gpt4o
+                              disambiguated_fill_blank_gpt4o_self_debiasing,
+                              disambiguated_fill_blank_gpt4o_new_debiasing,
+                              disambiguated_fill_blank_gpt4o_combine_debiasing,
+                              disambiguated_short_answer_gpt4o,
+                              disambiguated_short_answer_gpt4o_self_debiasing,
+                              disambiguated_short_answer_gpt4o_new_debiasing,
+                              disambiguated_short_answer_gpt4o_combine_debiasing
                               ]
         ambiguous_data.append(ambiguous_list)
         disambiguated_data.append(disambiguated_list)
@@ -401,11 +361,30 @@ def plot_tables(table_type: str, data_map: dict) -> None:
                                "Combined\n GPT-4o",
                                ]
     disambiguated_column_labels = ["Multiple Choice\n GPT-3.5",
+                                   "Self debias\n GPT-3.5",
+                                   "Self new\n GPT-3.5",
+                                   "Combined\n GPT-3.5",
                                    "Fill in Blank\n GPT-3.5",
+                                   "Self debias\n GPT-3.5",
+                                   "Self new\n GPT-3.5",
+                                   "Combined\n GPT-3.5",
                                    "Short Answer\n GPT-3.5",
+                                   "Self debias\n GPT-3.5",
+                                   "Self new\n GPT-3.5",
+                                   "Combined\n GPT-3.5",
                                    "Multiple Choice\n GPT-4o",
+                                   "Self debias\n GPT-4o",
+                                   "Self new\n GPT-4o",
+                                   "Combined\n GPT-4o",
                                    "Fill in Blank\n GPT-4o",
-                                   "Short Answer\n GPT-4o"]
+                                   "Self debias\n GPT-4o",
+                                   "Self new\n GPT-4o",
+                                   "Combined\n GPT-4o",
+                                   "Short Answer\n GPT-4o",
+                                   "Self debias\n GPT-4o",
+                                   "Self new\n GPT-4o",
+                                   "Combined\n GPT-4o",
+                                   ]
     # ambiguous_data_percent = [[str(value*100)+"%" for value in row] for row in ambiguous_data]
     # disambiguated_data_percent = [[str(value * 100)+"%" for value in row] for row in disambiguated_data]
 
@@ -433,7 +412,7 @@ def plot_tables(table_type: str, data_map: dict) -> None:
     fig.savefig(f"{table_type}_ambiguous.pdf")
 
     # Plot disambiguated table
-    fig, disambiguated_ax = plt.subplots(figsize=(12, 6))
+    fig, disambiguated_ax = plt.subplots(figsize=(25, 10))
     disambiguated_ax.xaxis.set_visible(False)
     disambiguated_ax.yaxis.set_visible(False)
     disambiguated_ax.set_frame_on(False)
@@ -476,8 +455,8 @@ if __name__ == '__main__':
     #calculate_bias_accuracy_score(bias_score_map, accuracy_map)
     load_bias_accuracy_score(bias_score_map, accuracy_map)
 
-    plot_tables("bias_score", bias_score_map)
-    # plot_tables("accuracy", accuracy_map)
+    #plot_tables("bias_score", bias_score_map)
+    plot_tables("accuracy", accuracy_map)
 
     # evaluation_plot_tables("Bias Score", bias_score_map)
 
