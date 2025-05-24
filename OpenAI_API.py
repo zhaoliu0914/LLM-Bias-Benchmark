@@ -154,11 +154,11 @@ def submit_debias(client: OpenAI) -> None:
     result_list = []
     count = 0
     print(f"The number of files in {debiasing_folder} path = {len(filename_list)}")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as thread_pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as thread_pool:
         for filename in filename_list:
             file_path = os.path.join(debiasing_folder, filename)
-            if os.path.isfile(file_path) and "DS_Store" not in file_path and "disambiguated" in file_path:
-                count = count + 1
+            if os.path.isfile(file_path) and "DS_Store" not in file_path and "cot-debiasing" in file_path:
+                count += 1
 
                 future = thread_pool.submit(submit_debias_single_file, file_path)
                 result_list.append([file_path, future])
@@ -207,16 +207,15 @@ def submit_evaluation(client: OpenAI) -> None:
         filename_list = os.listdir(folder)
         print(f"The number of files in {folder} = {len(filename_list)}")
         for filename in filename_list:
-            if "debiasing" in filename and "disambiguated" in filename:
+            if "cot-debiasing" in filename:
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
                     count += 1
                     batch_job_id = create_batch(client, file_path)
-
                     csv_writer.writerow([file_path, batch_job_id])
 
-                    if count == 50 or count == 100:
-                        sleep(1800)
+                    if count % 15 == 0:
+                       sleep(1800)
 
     print(f"Submitted {count} files from {folder} to OpenAI API.")
 
@@ -264,7 +263,7 @@ def retrieve_results_of_batch(client: OpenAI, input_csv: str, output_folder: str
             dataset_filename = row[0]
             batch_id = row[1]
 
-            if "debiasing" in dataset_filename and "disambiguated" in dataset_filename:
+            if "cot-debiasing" in dataset_filename:
                 batch_status = client.batches.retrieve(batch_id)
                 print(f"Batch id = {batch_id}, Batch status Response: {batch_status}")
 
@@ -299,10 +298,9 @@ if __name__ == '__main__':
 
     #submit_datasets(client)
     #submit_evaluation(client)
-
     #submit_debias(client)
 
     #retrieve_results_of_batch(client, "mapping files/dataset.csv", "results")
-    retrieve_results_of_batch(client, "mapping files/evaluation.csv", "results")
+    #retrieve_results_of_batch(client, "mapping files/evaluation.csv", "results")
 
 

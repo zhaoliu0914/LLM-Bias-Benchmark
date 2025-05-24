@@ -58,7 +58,7 @@ def correct_multiple_choice_answer():
     #count = 0
     for filename in filename_list:
         file_path = os.path.join(folder, filename)
-        if os.path.isfile(file_path) and "cot-debiasing" in filename and "multiple_choice" in filename:
+        if os.path.isfile(file_path) and "cot-debiasing" in filename and "multiple_choice" in filename and "ambiguous" in filename:
             #print(file_path)
             category = filename.split("chat_completions_")[1].split("_multiple_choice")[0]
             #print(category)
@@ -73,6 +73,7 @@ def correct_multiple_choice_answer():
                     response = json.loads(multiple_choice_row)
                     custom_id = response["custom_id"]
                     answer = response["response"]["body"]["choices"][0]["message"]["content"]
+                    answer = answer.lower()
 
                     for metadata in metadata_list:
                         metadata_custom_id = metadata["custom_id"]
@@ -88,7 +89,7 @@ def correct_multiple_choice_answer():
                     # print(custom_id)
                     # print(answer)
                     # print(correct_answer)
-                    if "cannot" in answer or "Cannot" in answer:
+                    if "cannot" in answer or "unknown" in answer or "ambiguous" in answer:
                         response["response"]["body"]["choices"][0]["message"]["content"] = unknown_answer
 
                     rewrite_answer_list.append(json.dumps(response))
@@ -186,7 +187,8 @@ def read_file_line_terminator():
 
 
 if __name__ == '__main__':
-    validation_jsonl()
+    correct_multiple_choice_answer()
+
 
 
 

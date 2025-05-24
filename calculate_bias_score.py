@@ -20,12 +20,6 @@ def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
     # accuracy_map = dict()
     # bias_score_map = dict()
 
-    # TODO: for test
-    #correct_multiple_choice = []
-    #correct_fill_blank = []
-    #correct_short_answer = []
-    # TODO: for test
-
     with open("mapping files/dataset.csv") as csv_file:
         csv_reader = csv.reader(csv_file)
         header = next(csv_reader)
@@ -115,15 +109,6 @@ def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
                             # filter correct answer for calculating accuracy
                             if correct_answer in evaluation_result:
                                 number_correct = number_correct + 1
-                                # TODO: for test
-                                # if "age" in dataset_filename and "gpt3-5" in dataset_filename:
-                                #     if question_type == MULTIPLE_CHOICE:
-                                #         correct_multiple_choice.append(custom_id)
-                                #     elif question_type == FILL_BLANK:
-                                #         correct_fill_blank.append(custom_id)
-                                #     elif question_type == SHORT_ANSWER:
-                                #         correct_short_answer.append(custom_id)
-                                # TODO: for test
 
                             # filter non-unknown and target_bias for calculating basic bias scores
                             if unknown_answer not in evaluation_result:
@@ -183,48 +168,48 @@ def plot_tables(table_type: str, data_map: dict) -> None:
             data_map[f"{category}_ambiguous_multiple_choice_gpt3-5_self-debiasing"], 3)
         ambiguous_multiple_choice_gpt3_5_new_debiasing = round(
             data_map[f"{category}_ambiguous_multiple_choice_gpt3-5_self-new-debiasing"], 3)
-        ambiguous_multiple_choice_gpt3_5_combine_debiasing = round(
-            data_map[f"{category}_ambiguous_multiple_choice_gpt3-5_combine-debiasing"], 3)
+        ambiguous_multiple_choice_gpt3_5_cot_debiasing = round(
+            data_map[f"{category}_ambiguous_multiple_choice_gpt3-5_cot-debiasing"], 3)
 
         ambiguous_fill_blank_gpt3_5 = round(data_map[f"{category}_ambiguous_fill_blank_gpt3-5"], 3)
         ambiguous_fill_blank_gpt3_5_self_debiasing = round(
             data_map[f"{category}_ambiguous_fill_blank_gpt3-5_self-debiasing"], 3)
         ambiguous_fill_blank_gpt3_5_new_debiasing = round(
             data_map[f"{category}_ambiguous_fill_blank_gpt3-5_self-new-debiasing"], 3)
-        ambiguous_fill_blank_gpt3_5_combine_debiasing = round(
-            data_map[f"{category}_ambiguous_fill_blank_gpt3-5_combine-debiasing"], 3)
+        ambiguous_fill_blank_gpt3_5_cot_debiasing = round(
+            data_map[f"{category}_ambiguous_fill_blank_gpt3-5_cot-debiasing"], 3)
 
         ambiguous_short_answer_gpt3_5 = round(data_map[f"{category}_ambiguous_short_answer_gpt3-5"], 3)
         ambiguous_short_answer_gpt3_5_self_debiasing = round(
             data_map[f"{category}_ambiguous_short_answer_gpt3-5_self-debiasing"], 3)
         ambiguous_short_answer_gpt3_5_new_debiasing = round(
             data_map[f"{category}_ambiguous_short_answer_gpt3-5_self-new-debiasing"], 3)
-        ambiguous_short_answer_gpt3_5_combine_debiasing = round(
-            data_map[f"{category}_ambiguous_short_answer_gpt3-5_combine-debiasing"], 3)
+        ambiguous_short_answer_gpt3_5_cot_debiasing = round(
+            data_map[f"{category}_ambiguous_short_answer_gpt3-5_cot-debiasing"], 3)
 
         ambiguous_multiple_choice_gpt4o = round(data_map[f"{category}_ambiguous_multiple_choice_gpt4o"], 3)
         ambiguous_multiple_choice_gpt4o_self_debiasing = round(
             data_map[f"{category}_ambiguous_multiple_choice_gpt4o_self-debiasing"], 3)
         ambiguous_multiple_choice_gpt4o_new_debiasing = round(
             data_map[f"{category}_ambiguous_multiple_choice_gpt4o_self-new-debiasing"], 3)
-        ambiguous_multiple_choice_gpt4o_combine_debiasing = round(
-            data_map[f"{category}_ambiguous_multiple_choice_gpt4o_combine-debiasing"], 3)
+        ambiguous_multiple_choice_gpt4o_cot_debiasing = round(
+            data_map[f"{category}_ambiguous_multiple_choice_gpt4o_cot-debiasing"], 3)
 
         ambiguous_fill_blank_gpt4o = round(data_map[f"{category}_ambiguous_fill_blank_gpt4o"], 3)
         ambiguous_fill_blank_gpt4o_self_debiasing = round(
             data_map[f"{category}_ambiguous_fill_blank_gpt4o_self-debiasing"], 3)
         ambiguous_fill_blank_gpt4o_new_debiasing = round(
             data_map[f"{category}_ambiguous_fill_blank_gpt4o_self-new-debiasing"], 3)
-        ambiguous_fill_blank_gpt4o_combine_debiasing = round(
-            data_map[f"{category}_ambiguous_fill_blank_gpt4o_combine-debiasing"], 3)
+        ambiguous_fill_blank_gpt4o_cot_debiasing = round(
+            data_map[f"{category}_ambiguous_fill_blank_gpt4o_cot-debiasing"], 3)
 
         ambiguous_short_answer_gpt4o = round(data_map[f"{category}_ambiguous_short_answer_gpt4o"], 3)
         ambiguous_short_answer_gpt4o_self_debiasing = round(
             data_map[f"{category}_ambiguous_short_answer_gpt4o_self-debiasing"], 3)
         ambiguous_short_answer_gpt4o_new_debiasing = round(
             data_map[f"{category}_ambiguous_short_answer_gpt4o_self-new-debiasing"], 3)
-        ambiguous_short_answer_gpt4o_combine_debiasing = round(
-            data_map[f"{category}_ambiguous_short_answer_gpt4o_combine-debiasing"], 3)
+        ambiguous_short_answer_gpt4o_cot_debiasing = round(
+            data_map[f"{category}_ambiguous_short_answer_gpt4o_cot-debiasing"], 3)
 
         # Disambiguate parts
         disambiguated_multiple_choice_gpt3_5 = round(data_map[f"{category}_disambiguated_multiple_choice_gpt3-5"], 3)
@@ -232,99 +217,101 @@ def plot_tables(table_type: str, data_map: dict) -> None:
             data_map[f"{category}_disambiguated_multiple_choice_gpt3-5_self-debiasing"], 3)
         disambiguated_multiple_choice_gpt3_5_new_debiasing = round(
             data_map[f"{category}_disambiguated_multiple_choice_gpt3-5_self-new-debiasing"], 3)
-        disambiguated_multiple_choice_gpt3_5_combine_debiasing = round(
-            data_map[f"{category}_disambiguated_multiple_choice_gpt3-5_combine-debiasing"], 3)
+        disambiguated_multiple_choice_gpt3_5_cot_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt3-5_cot-debiasing"], 3)
 
         disambiguated_fill_blank_gpt3_5 = round(data_map[f"{category}_disambiguated_fill_blank_gpt3-5"], 3)
         disambiguated_fill_blank_gpt3_5_self_debiasing = round(
             data_map[f"{category}_disambiguated_fill_blank_gpt3-5_self-debiasing"], 3)
         disambiguated_fill_blank_gpt3_5_new_debiasing = round(
             data_map[f"{category}_disambiguated_fill_blank_gpt3-5_self-new-debiasing"], 3)
-        disambiguated_fill_blank_gpt3_5_combine_debiasing = round(
-            data_map[f"{category}_disambiguated_fill_blank_gpt3-5_combine-debiasing"], 3)
+        disambiguated_fill_blank_gpt3_5_cot_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt3-5_cot-debiasing"], 3)
 
         disambiguated_short_answer_gpt3_5 = round(data_map[f"{category}_disambiguated_short_answer_gpt3-5"], 3)
         disambiguated_short_answer_gpt3_5_self_debiasing = round(
             data_map[f"{category}_disambiguated_short_answer_gpt3-5_self-debiasing"], 3)
         disambiguated_short_answer_gpt3_5_new_debiasing = round(
             data_map[f"{category}_disambiguated_short_answer_gpt3-5_self-new-debiasing"], 3)
-        disambiguated_short_answer_gpt3_5_combine_debiasing = round(
-            data_map[f"{category}_disambiguated_short_answer_gpt3-5_combine-debiasing"], 3)
+        disambiguated_short_answer_gpt3_5_cot_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt3-5_cot-debiasing"], 3)
 
         disambiguated_multiple_choice_gpt4o = round(data_map[f"{category}_disambiguated_multiple_choice_gpt4o"], 3)
         disambiguated_multiple_choice_gpt4o_self_debiasing = round(
             data_map[f"{category}_disambiguated_multiple_choice_gpt4o_self-debiasing"], 3)
         disambiguated_multiple_choice_gpt4o_new_debiasing = round(
             data_map[f"{category}_disambiguated_multiple_choice_gpt4o_self-new-debiasing"], 3)
-        disambiguated_multiple_choice_gpt4o_combine_debiasing = round(
-            data_map[f"{category}_disambiguated_multiple_choice_gpt4o_combine-debiasing"], 3)
+        disambiguated_multiple_choice_gpt4o_cot_debiasing = round(
+            data_map[f"{category}_disambiguated_multiple_choice_gpt4o_cot-debiasing"], 3)
 
         disambiguated_fill_blank_gpt4o = round(data_map[f"{category}_disambiguated_fill_blank_gpt4o"], 3)
         disambiguated_fill_blank_gpt4o_self_debiasing = round(
             data_map[f"{category}_disambiguated_fill_blank_gpt4o_self-debiasing"], 3)
         disambiguated_fill_blank_gpt4o_new_debiasing = round(
             data_map[f"{category}_disambiguated_fill_blank_gpt4o_self-new-debiasing"], 3)
-        disambiguated_fill_blank_gpt4o_combine_debiasing = round(
-            data_map[f"{category}_disambiguated_fill_blank_gpt4o_combine-debiasing"], 3)
+        disambiguated_fill_blank_gpt4o_cot_debiasing = round(
+            data_map[f"{category}_disambiguated_fill_blank_gpt4o_cot-debiasing"], 3)
 
         disambiguated_short_answer_gpt4o = round(data_map[f"{category}_disambiguated_short_answer_gpt4o"], 3)
         disambiguated_short_answer_gpt4o_self_debiasing = round(
             data_map[f"{category}_disambiguated_short_answer_gpt4o_self-debiasing"], 3)
         disambiguated_short_answer_gpt4o_new_debiasing = round(
             data_map[f"{category}_disambiguated_short_answer_gpt4o_self-new-debiasing"], 3)
-        disambiguated_short_answer_gpt4o_combine_debiasing = round(
-            data_map[f"{category}_disambiguated_short_answer_gpt4o_combine-debiasing"], 3)
+        disambiguated_short_answer_gpt4o_cot_debiasing = round(
+            data_map[f"{category}_disambiguated_short_answer_gpt4o_cot-debiasing"], 3)
 
 
-        ambiguous_list = [ambiguous_multiple_choice_gpt3_5,
+        ambiguous_list = [
+                        ambiguous_multiple_choice_gpt3_5,
                           ambiguous_multiple_choice_gpt3_5_self_debiasing,
-                          ambiguous_multiple_choice_gpt3_5_new_debiasing,
-                          ambiguous_multiple_choice_gpt3_5_combine_debiasing,
+                          # ambiguous_multiple_choice_gpt3_5_new_debiasing,
+                          ambiguous_multiple_choice_gpt3_5_cot_debiasing,
                           ambiguous_fill_blank_gpt3_5,
                           ambiguous_fill_blank_gpt3_5_self_debiasing,
-                          ambiguous_fill_blank_gpt3_5_new_debiasing,
-                          ambiguous_fill_blank_gpt3_5_combine_debiasing,
+                          # ambiguous_fill_blank_gpt3_5_new_debiasing,
+                          ambiguous_fill_blank_gpt3_5_cot_debiasing,
                           ambiguous_short_answer_gpt3_5,
                           ambiguous_short_answer_gpt3_5_self_debiasing,
-                          ambiguous_short_answer_gpt3_5_new_debiasing,
-                          ambiguous_short_answer_gpt3_5_combine_debiasing,
+                          # ambiguous_short_answer_gpt3_5_new_debiasing,
+                          ambiguous_short_answer_gpt3_5_cot_debiasing,
                           ambiguous_multiple_choice_gpt4o,
                           ambiguous_multiple_choice_gpt4o_self_debiasing,
-                          ambiguous_multiple_choice_gpt4o_new_debiasing,
-                          ambiguous_multiple_choice_gpt4o_combine_debiasing,
+                          # ambiguous_multiple_choice_gpt4o_new_debiasing,
+                          ambiguous_multiple_choice_gpt4o_cot_debiasing,
                           ambiguous_fill_blank_gpt4o,
                           ambiguous_fill_blank_gpt4o_self_debiasing,
-                          ambiguous_fill_blank_gpt4o_new_debiasing,
-                          ambiguous_fill_blank_gpt4o_combine_debiasing,
+                          # ambiguous_fill_blank_gpt4o_new_debiasing,
+                          ambiguous_fill_blank_gpt4o_cot_debiasing,
                           ambiguous_short_answer_gpt4o,
                           ambiguous_short_answer_gpt4o_self_debiasing,
-                          ambiguous_short_answer_gpt4o_new_debiasing,
-                          ambiguous_short_answer_gpt4o_combine_debiasing
+                          # ambiguous_short_answer_gpt4o_new_debiasing,
+                          ambiguous_short_answer_gpt4o_cot_debiasing
                           ]
-        disambiguated_list = [disambiguated_multiple_choice_gpt3_5,
+        disambiguated_list = [
+                            disambiguated_multiple_choice_gpt3_5,
                               disambiguated_multiple_choice_gpt3_5_self_debiasing,
-                              disambiguated_multiple_choice_gpt3_5_new_debiasing,
-                              disambiguated_multiple_choice_gpt3_5_combine_debiasing,
+                              # disambiguated_multiple_choice_gpt3_5_new_debiasing,
+                              disambiguated_multiple_choice_gpt3_5_cot_debiasing,
                               disambiguated_fill_blank_gpt3_5,
                               disambiguated_fill_blank_gpt3_5_self_debiasing,
-                              disambiguated_fill_blank_gpt3_5_new_debiasing,
-                              disambiguated_fill_blank_gpt3_5_combine_debiasing,
+                              # disambiguated_fill_blank_gpt3_5_new_debiasing,
+                              disambiguated_fill_blank_gpt3_5_cot_debiasing,
                               disambiguated_short_answer_gpt3_5,
                               disambiguated_short_answer_gpt3_5_self_debiasing,
-                              disambiguated_short_answer_gpt3_5_new_debiasing,
-                              disambiguated_short_answer_gpt3_5_combine_debiasing,
+                              # disambiguated_short_answer_gpt3_5_new_debiasing,
+                              disambiguated_short_answer_gpt3_5_cot_debiasing,
                               disambiguated_multiple_choice_gpt4o,
                               disambiguated_multiple_choice_gpt4o_self_debiasing,
-                              disambiguated_multiple_choice_gpt4o_new_debiasing,
-                              disambiguated_multiple_choice_gpt4o_combine_debiasing,
+                              # disambiguated_multiple_choice_gpt4o_new_debiasing,
+                              disambiguated_multiple_choice_gpt4o_cot_debiasing,
                               disambiguated_fill_blank_gpt4o,
                               disambiguated_fill_blank_gpt4o_self_debiasing,
-                              disambiguated_fill_blank_gpt4o_new_debiasing,
-                              disambiguated_fill_blank_gpt4o_combine_debiasing,
+                              # disambiguated_fill_blank_gpt4o_new_debiasing,
+                              disambiguated_fill_blank_gpt4o_cot_debiasing,
                               disambiguated_short_answer_gpt4o,
                               disambiguated_short_answer_gpt4o_self_debiasing,
-                              disambiguated_short_answer_gpt4o_new_debiasing,
-                              disambiguated_short_answer_gpt4o_combine_debiasing
+                              # disambiguated_short_answer_gpt4o_new_debiasing,
+                              disambiguated_short_answer_gpt4o_cot_debiasing
                               ]
         ambiguous_data.append(ambiguous_list)
         disambiguated_data.append(disambiguated_list)
@@ -335,55 +322,57 @@ def plot_tables(table_type: str, data_map: dict) -> None:
     ambiguous_colors = [[colormap((value + 1) / 2) for value in row] for row in ambiguous_data]
     disambiguated_colors = [[colormap((value + 1) / 2) for value in row] for row in disambiguated_data]
 
-    ambiguous_column_labels = ["Multiple Choice\n GPT-3.5",
+    ambiguous_column_labels = [
+                            "Multiple Choice\n GPT-3.5",
                                "Self debias\n GPT-3.5",
-                               "Self new\n GPT-3.5",
-                               "Combined\n GPT-3.5",
+                               # "Self new\n GPT-3.5",
+                               "CoT\n GPT-3.5",
                                "Fill in Blank\n GPT-3.5",
                                "Self debias\n GPT-3.5",
-                               "Self new\n GPT-3.5",
-                               "Combined\n GPT-3.5",
+                               # "Self new\n GPT-3.5",
+                               "CoT\n GPT-3.5",
                                "Short Answer\n GPT-3.5",
                                "Self debias\n GPT-3.5",
-                               "Self new\n GPT-3.5",
-                               "Combined\n GPT-3.5",
+                               # "Self new\n GPT-3.5",
+                               "CoT\n GPT-3.5",
                                "Multiple Choice\n GPT-4o",
                                "Self debias\n GPT-4o",
-                               "Self new\n GPT-4o",
-                               "Combined\n GPT-4o",
+                               # "Self new\n GPT-4o",
+                               "CoT\n GPT-4o",
                                "Fill in Blank\n GPT-4o",
                                "Self debias\n GPT-4o",
-                               "Self new\n GPT-4o",
-                               "Combined\n GPT-4o",
+                               # "Self new\n GPT-4o",
+                               "CoT\n GPT-4o",
                                "Short Answer\n GPT-4o",
                                "Self debias\n GPT-4o",
-                               "Self new\n GPT-4o",
-                               "Combined\n GPT-4o",
+                               # "Self new\n GPT-4o",
+                               "CoT\n GPT-4o",
                                ]
-    disambiguated_column_labels = ["Multiple Choice\n GPT-3.5",
+    disambiguated_column_labels = [
+                                "Multiple Choice\n GPT-3.5",
                                    "Self debias\n GPT-3.5",
-                                   "Self new\n GPT-3.5",
-                                   "Combined\n GPT-3.5",
+                                   # "Self new\n GPT-3.5",
+                                   "CoT\n GPT-3.5",
                                    "Fill in Blank\n GPT-3.5",
                                    "Self debias\n GPT-3.5",
-                                   "Self new\n GPT-3.5",
-                                   "Combined\n GPT-3.5",
+                                   # "Self new\n GPT-3.5",
+                                   "CoT\n GPT-3.5",
                                    "Short Answer\n GPT-3.5",
                                    "Self debias\n GPT-3.5",
-                                   "Self new\n GPT-3.5",
-                                   "Combined\n GPT-3.5",
+                                   # "Self new\n GPT-3.5",
+                                   "CoT\n GPT-3.5",
                                    "Multiple Choice\n GPT-4o",
                                    "Self debias\n GPT-4o",
-                                   "Self new\n GPT-4o",
-                                   "Combined\n GPT-4o",
+                                   # "Self new\n GPT-4o",
+                                   "CoT\n GPT-4o",
                                    "Fill in Blank\n GPT-4o",
                                    "Self debias\n GPT-4o",
-                                   "Self new\n GPT-4o",
-                                   "Combined\n GPT-4o",
+                                   # "Self new\n GPT-4o",
+                                   "CoT\n GPT-4o",
                                    "Short Answer\n GPT-4o",
                                    "Self debias\n GPT-4o",
-                                   "Self new\n GPT-4o",
-                                   "Combined\n GPT-4o",
+                                   # "Self new\n GPT-4o",
+                                   "CoT\n GPT-4o",
                                    ]
     # ambiguous_data_percent = [[str(value*100)+"%" for value in row] for row in ambiguous_data]
     # disambiguated_data_percent = [[str(value * 100)+"%" for value in row] for row in disambiguated_data]
@@ -452,10 +441,10 @@ if __name__ == '__main__':
     bias_score_map = dict()
     accuracy_map = dict()
 
-    #calculate_bias_accuracy_score(bias_score_map, accuracy_map)
-    load_bias_accuracy_score(bias_score_map, accuracy_map)
+    calculate_bias_accuracy_score(bias_score_map, accuracy_map)
+    #load_bias_accuracy_score(bias_score_map, accuracy_map)
 
-    #plot_tables("bias_score", bias_score_map)
+    plot_tables("bias_score", bias_score_map)
     plot_tables("accuracy", accuracy_map)
 
     # evaluation_plot_tables("Bias Score", bias_score_map)
