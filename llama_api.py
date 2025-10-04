@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 if __name__ == '__main__':
-    client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+    client = OpenAI(base_url="http://localhost:8000/v1", api_key="vllm-Llama")
 
     print(f"Start time = {datetime.now()}")
 
