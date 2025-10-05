@@ -131,25 +131,55 @@ def generate_dataset(category: str, input_metadata: pd.DataFrame) -> None:
 
 
 if __name__ == '__main__':
-    categories = [
-        "Disability_status",
-        "Age",
-        "Physical_appearance",
-        "SES",
-        "Gender_identity",
-        "Race_ethnicity",
-        "Race_x_gender",
-        "Race_x_SES",
-        "Religion",
-        "Nationality",
-        "Sexual_orientation",
-    ]
+    # categories = [
+    #     "Disability_status",
+    #     "Age",
+    #     "Physical_appearance",
+    #     "SES",
+    #     "Gender_identity",
+    #     "Race_ethnicity",
+    #     "Race_x_gender",
+    #     "Race_x_SES",
+    #     "Religion",
+    #     "Nationality",
+    #     "Sexual_orientation",
+    # ]
+    #
+    # pathlib.Path(dataset_folder).mkdir(parents=True, exist_ok=True)
+    # pathlib.Path(metadata_folder).mkdir(parents=True, exist_ok=True)
+    # pathlib.Path(evaluation_folder).mkdir(parents=True, exist_ok=True)
+    #
+    # input_metadata = pd.read_csv(f"{templates_folder}/additional_metadata.csv")
+    #
+    # for category in categories:
+    #     generate_dataset(category, input_metadata)
 
-    pathlib.Path(dataset_folder).mkdir(parents=True, exist_ok=True)
-    pathlib.Path(metadata_folder).mkdir(parents=True, exist_ok=True)
-    pathlib.Path(evaluation_folder).mkdir(parents=True, exist_ok=True)
+    model = "meta-llama/Llama-3.1-8B-Instruct"
 
-    input_metadata = pd.read_csv(f"{templates_folder}/additional_metadata.csv")
+    with open("mapping files/dataset.csv") as csv_file:
+        csv_reader = csv.reader(csv_file)
+        header = next(csv_reader)
+        for csv_row in csv_reader:
+            dataset_input_file = csv_row[0]
+            batch_id = csv_row[1]
 
-    for category in categories:
-        generate_dataset(category, input_metadata)
+            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file:
+                continue
+
+            dataset_filename = dataset_input_file.split("/")[1]
+            dataset_name = dataset_filename.split(".")[0]
+            dataset_name = dataset_name.replace("_gpt4o", "")
+
+            print(f"Processing dataset: {dataset_name}")
+
+            dataset_file = open(f"{dataset_folder}/{dataset_name}_llama3-1.jsonl", "w")
+
+            with open(dataset_input_file) as source_file:
+                for row in source_file:
+                    content = json.loads(row)
+                    content["body"]["model"] = model
+
+                    content_str = json.dumps(content)
+                    dataset_file.write(content_str + "\n")
+
+            dataset_file.close()
