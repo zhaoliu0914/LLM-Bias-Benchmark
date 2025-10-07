@@ -12,17 +12,19 @@ client = OpenAI(base_url="http://localhost:8000/v1", api_key="EMPTY")
 
 
 def submit_datasets() -> None:
+    start_time = datetime.now()
+    print(f"start_time = {start_time}")
+
     # setup for input folder
     folder = "data"
     # setup for recording .csv file
     with open("mapping files/dataset.csv", mode="a") as csv_file:
         csv_writer = csv.writer(csv_file, lineterminator="\n")
-        #csv_writer.writerow(["dataset file", "batch job id"])
 
         filename_list = os.listdir(folder)
         print(f"The number of files = {len(filename_list)}")
         for filename in filename_list:
-            if "llama3-1" in filename:
+            if "llama3-1" in filename and "age" in filename and "fill_blank" in filename:
                 dataset_name = filename.split(".")[0]
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
@@ -41,6 +43,7 @@ def submit_datasets() -> None:
                                 completion = client.chat.completions.create(
                                     model=model,
                                     messages=messages_str,
+                                    max_tokens=128
                                 )
                                 chat_model = completion.model
                                 response_str = completion.choices[0].message.content
@@ -61,6 +64,12 @@ def submit_datasets() -> None:
                                 result_file.write(response_json_str + "\n")
 
                     csv_writer.writerow([file_path, response_filename])
+
+    end_time = datetime.now()
+    print(f"end_time = {end_time}")
+
+    running_time = end_time - start_time
+    print(f"running_time in minutes = {running_time.total_seconds() / 60}")
 
 
 if __name__ == '__main__':
