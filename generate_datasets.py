@@ -163,7 +163,7 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file:
+            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "multiple_choice" in dataset_input_file or "fill_blank" in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]
@@ -172,14 +172,27 @@ if __name__ == '__main__':
 
             print(f"Processing dataset: {dataset_name}")
 
-            dataset_file = open(f"{dataset_folder}/{dataset_name}_llama3-1.jsonl", "w")
+            with open(f"{dataset_folder}/{dataset_name}_llama3-1.jsonl", "w") as dataset_file:
 
-            with open(dataset_input_file) as source_file:
-                for row in source_file:
-                    content = json.loads(row)
-                    content["body"]["model"] = model
+                with open(dataset_input_file) as source_file:
+                    for row in source_file:
+                        content = json.loads(row)
+                        content["body"]["model"] = model
 
-                    content_str = json.dumps(content)
-                    dataset_file.write(content_str + "\n")
+                        content_one = content["body"]["messages"][0]["content"]
+                        content_two = content["body"]["messages"][1]["content"]
 
-            dataset_file.close()
+                        system_content = dict()
+                        system_content["role"] = "system"
+                        system_content["content"] = "Please answer the question in one sentence."
+
+                        user_content = dict()
+                        user_content["role"] = "user"
+                        user_content["content"] = f"{content_one} {content_two}"
+
+                        content["body"]["messages"][0] = system_content
+                        content["body"]["messages"][1] = user_content
+
+                        content_str = json.dumps(content)
+                        dataset_file.write(content_str + "\n")
+

@@ -14,7 +14,7 @@ def validation_jsonl():
     count = 0
     for filename in filename_list:
         file_path = os.path.join(folder, filename)
-        if os.path.isfile(file_path) and "cot-debiasing" in file_path:
+        if os.path.isfile(file_path) and "llama3-1" in file_path:
             with open(file_path) as evaluation_file:
                 print(f"validate file = {file_path}")
                 index = 0
@@ -187,7 +187,8 @@ def read_file_line_terminator():
 
 
 if __name__ == '__main__':
-    correct_multiple_choice_answer()
+    validation_jsonl()
+    #correct_multiple_choice_answer()
 
 
 
