@@ -24,7 +24,7 @@ def submit_datasets() -> None:
         filename_list = os.listdir(folder)
         print(f"The number of files = {len(filename_list)}")
         for filename in filename_list:
-            if "llama3-1" in filename and "age" in filename and "fill_blank" in filename:
+            if "llama3-1" in filename and "age" in filename and "short_answer" in filename:
                 dataset_name = filename.split(".")[0]
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
