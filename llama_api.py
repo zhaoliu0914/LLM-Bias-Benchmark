@@ -28,7 +28,8 @@ def submit_datasets() -> None:
                 dataset_name = filename.split(".")[0]
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
-                    print(f"process dataset: {file_path}")
+                    single_start_time = datetime.now()
+                    print(f"process dataset: {file_path}, at time: {single_start_time}")
 
                     response_filename = f"chat_completions_{dataset_name}"
                     print(f"response_filename = {response_filename}")
@@ -63,13 +64,17 @@ def submit_datasets() -> None:
                                 response_json_str = json.dumps(response)
                                 result_file.write(response_json_str + "\n")
 
+                    single_end_time = datetime.now()
+                    single_running_time = single_end_time - single_start_time
+                    print(f"process {file_path} in {single_running_time.total_seconds() / 60} minutes.")
+
                     csv_writer.writerow([file_path, response_filename])
 
     end_time = datetime.now()
     print(f"end_time = {end_time}")
 
     running_time = end_time - start_time
-    print(f"running_time in minutes = {running_time.total_seconds() / 60}")
+    print(f"Total running time in minutes = {running_time.total_seconds() / 60}")
 
 
 if __name__ == '__main__':
