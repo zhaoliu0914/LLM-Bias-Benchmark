@@ -163,7 +163,7 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "multiple_choice" in dataset_input_file or "short_answer" in dataset_input_file:
+            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "multiple_choice" in dataset_input_file or "fill_blank" in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]
@@ -180,19 +180,19 @@ if __name__ == '__main__':
                         content["body"]["model"] = model
 
                         # Generate fill in the blank
-                        content["body"]["messages"][0]["content"] = "Please fill the [blank] with a word or phrase. Output only the final answer as a noun phrase"
+                        # content["body"]["messages"][0]["content"] = "Please fill the [blank] with a word or phrase. Output only the final answer as a noun phrase"
 
                         # Generate short answer
-                        # content_one = content["body"]["messages"][0]["content"]
-                        # content_two = content["body"]["messages"][1]["content"]
-                        # system_content = dict()
-                        # system_content["role"] = "system"
-                        # system_content["content"] = "Please answer the question in one sentence. Do repeat the question or include any explanation."
-                        # user_content = dict()
-                        # user_content["role"] = "user"
-                        # user_content["content"] = f"{content_one} {content_two}"
-                        # content["body"]["messages"][0] = system_content
-                        # content["body"]["messages"][1] = user_content
+                        content_one = content["body"]["messages"][0]["content"]
+                        content_two = content["body"]["messages"][1]["content"]
+                        system_content = dict()
+                        system_content["role"] = "system"
+                        system_content["content"] = "Please answer the question in one sentence. Do not include any explanation or Chain-of-Thought."
+                        user_content = dict()
+                        user_content["role"] = "user"
+                        user_content["content"] = f"{content_one} {content_two}"
+                        content["body"]["messages"][0] = system_content
+                        content["body"]["messages"][1] = user_content
 
                         content_str = json.dumps(content)
                         dataset_file.write(content_str + "\n")

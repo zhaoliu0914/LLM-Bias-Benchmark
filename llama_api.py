@@ -13,7 +13,7 @@ client = OpenAI(base_url="http://localhost:8000/v1", api_key="EMPTY")
 
 def submit_datasets() -> None:
     start_time = datetime.now()
-    print(f"start_time = {start_time}")
+    print(f"Start time = {start_time}")
 
     # setup for input folder
     folder = "data"
@@ -29,7 +29,7 @@ def submit_datasets() -> None:
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
                     single_start_time = datetime.now()
-                    print(f"process dataset: {file_path}, at time: {single_start_time}")
+                    print(f"Process dataset: {file_path}, at time: {single_start_time}")
 
                     response_filename = f"chat_completions_{dataset_name}"
                     print(f"response_filename = {response_filename}")
@@ -66,12 +66,12 @@ def submit_datasets() -> None:
 
                     single_end_time = datetime.now()
                     single_running_time = single_end_time - single_start_time
-                    print(f"process {file_path} in {single_running_time.total_seconds() / 60} minutes.")
+                    print(f"Finish {file_path} in {single_running_time.total_seconds() / 60} minutes.")
 
                     csv_writer.writerow([file_path, response_filename])
 
     end_time = datetime.now()
-    print(f"end_time = {end_time}")
+    print(f"End time = {end_time}")
 
     running_time = end_time - start_time
     print(f"Total running time in minutes = {running_time.total_seconds() / 60}")
