@@ -185,6 +185,7 @@ if __name__ == '__main__':
                         # Generate short answer
                         content_one = content["body"]["messages"][0]["content"]
                         content_two = content["body"]["messages"][1]["content"]
+                        content_two = content_two.replace("Could you give us the most possible answer and provide your chain of thought?", "")
                         system_content = dict()
                         system_content["role"] = "system"
                         system_content["content"] = "Please answer the question in one sentence. Do not include any explanation or Chain-of-Thought."
