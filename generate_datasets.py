@@ -131,31 +131,7 @@ def generate_dataset(category: str, input_metadata: pd.DataFrame) -> None:
 
 
 if __name__ == '__main__':
-    # categories = [
-    #     "Disability_status",
-    #     "Age",
-    #     "Physical_appearance",
-    #     "SES",
-    #     "Gender_identity",
-    #     "Race_ethnicity",
-    #     "Race_x_gender",
-    #     "Race_x_SES",
-    #     "Religion",
-    #     "Nationality",
-    #     "Sexual_orientation",
-    # ]
-    #
-    # pathlib.Path(dataset_folder).mkdir(parents=True, exist_ok=True)
-    # pathlib.Path(metadata_folder).mkdir(parents=True, exist_ok=True)
-    # pathlib.Path(evaluation_folder).mkdir(parents=True, exist_ok=True)
-    #
-    # input_metadata = pd.read_csv(f"{templates_folder}/additional_metadata.csv")
-    #
-    # for category in categories:
-    #     generate_dataset(category, input_metadata)
-
     model = "meta-llama/Llama-3.1-8B-Instruct"
-
     with open("mapping files/dataset.csv") as csv_file:
         csv_reader = csv.reader(csv_file)
         header = next(csv_reader)
@@ -178,22 +154,24 @@ if __name__ == '__main__':
                     for row in source_file:
                         content = json.loads(row)
                         content["body"]["model"] = model
+                        del content["body"]["max_tokens"]
+                        content["body"]["max_completion_tokens"] = 128
 
                         # Generate fill in the blank
                         # content["body"]["messages"][0]["content"] = "Please fill the [blank] with a word or phrase. Output only the final answer as a noun phrase"
 
                         # Generate short answer
-                        content_one = content["body"]["messages"][0]["content"]
-                        content_two = content["body"]["messages"][1]["content"]
-                        content_two = content_two.replace("Could you give us the most possible answer and provide your chain of thought?", "")
-                        system_content = dict()
-                        system_content["role"] = "system"
-                        system_content["content"] = "Please answer the question in one sentence. Do not include any explanation or Chain-of-Thought."
-                        user_content = dict()
-                        user_content["role"] = "user"
-                        user_content["content"] = f"{content_one} {content_two}"
-                        content["body"]["messages"][0] = system_content
-                        content["body"]["messages"][1] = user_content
+                        # content_one = content["body"]["messages"][0]["content"]
+                        # content_two = content["body"]["messages"][1]["content"]
+                        # content_two = content_two.replace("Could you give us the most possible answer and provide your chain of thought?", "")
+                        # system_content = dict()
+                        # system_content["role"] = "system"
+                        # system_content["content"] = "Please answer the question in one sentence. Do not include any explanation or Chain-of-Thought."
+                        # user_content = dict()
+                        # user_content["role"] = "user"
+                        # user_content["content"] = f"{content_one} {content_two}"
+                        # content["body"]["messages"][0] = system_content
+                        # content["body"]["messages"][1] = user_content
 
                         content_str = json.dumps(content)
                         dataset_file.write(content_str + "\n")
