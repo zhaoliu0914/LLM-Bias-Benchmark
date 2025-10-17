@@ -139,7 +139,7 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "multiple_choice" in dataset_input_file or "fill_blank" in dataset_input_file:
+            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "multiple_choice" in dataset_input_file or "short_answer" in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]
