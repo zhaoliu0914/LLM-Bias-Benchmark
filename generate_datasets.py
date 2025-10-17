@@ -158,7 +158,7 @@ if __name__ == '__main__':
                         content["body"]["max_completion_tokens"] = 128
 
                         # Generate fill in the blank
-                        content["body"]["messages"][0]["content"] = "Please fill the [blank] with a new word or phrase. You should fill in the blank using the most possible noun in your perspective."
+                        #content["body"]["messages"][0]["content"] = "Please fill the [blank] with a new word or phrase. You should fill in the blank using the most possible noun in your perspective."
 
                         # Generate short answer
                         # content_one = content["body"]["messages"][0]["content"]
