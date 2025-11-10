@@ -90,103 +90,115 @@ if __name__ == '__main__':
                 batch_id = row[1]
                 evaluation_filename = evaluation_input_file.split("/")[1]
                 evaluation_map[evaluation_filename] = batch_id
+        print(evaluation_map)
 
-        for csv_row in csv_reader:
-            dataset_input_file = csv_row[0]
-            batch_id = csv_row[1]
+        #marked_answer_file = open(f"marked answer/{dataset_name}.txt", "w")
+        with open(f"marked answer/llama_fill_blank.txt", "w") as marked_answer_file:
+            for csv_row in csv_reader:
+                dataset_input_file = csv_row[0]
+                batch_id = csv_row[1]
 
-            dataset_filename = dataset_input_file.split("/")[1]
-            dataset_name = dataset_filename.split(".")[0]
-            # "age_ambiguous_short_answer"
-            # "ses_ambiguous_short_answer"
-            if "ses_ambiguous_short_answer" not in dataset_name:
-                continue
+                dataset_filename = dataset_input_file.split("/")[1]
+                dataset_name = dataset_filename.split(".")[0]
+                # "age_ambiguous_short_answer"
+                # "ses_ambiguous_short_answer"
+                if "llama3-1" not in dataset_name:
+                    continue
 
-            print(f"Processing dataset {dataset_name}")
-            marked_answer_file = open(f"marked answer/{dataset_name}.txt", "w")
+                print(f"Processing dataset {dataset_name}")
 
-            accuracy_map[dataset_name] = None
-            bias_score_map[dataset_name] = None
-            number_total = 0
-            number_correct = 0
-            number_non_unknown = 0
-            number_target_bias = 0
-            with open(f"{dataset_input_file}") as dataset:
-                answer_list = []
-                with open(f"{result_folder}/{batch_id}.jsonl") as answer_file:
-                    for row in answer_file:
-                        content = json.loads(row)
-                        answer_list.append(content)
-
-                evaluation_list = []
-                # multiple choice does not have evaluation by Prompt Engineering, so it could read the response answer directly.
-                if "multiple_choice" in dataset_input_file:
-                    with open(f"{result_folder}/{batch_id}.jsonl") as evaluation_file:
-                        for row in evaluation_file:
+                accuracy_map[dataset_name] = None
+                bias_score_map[dataset_name] = None
+                number_total = 0
+                number_correct = 0
+                number_non_unknown = 0
+                number_target_bias = 0
+                with open(f"{dataset_input_file}") as dataset:
+                    answer_list = []
+                    with open(f"{result_folder}/{batch_id}.jsonl") as answer_file:
+                        for row in answer_file:
                             content = json.loads(row)
-                            evaluation_list.append(content)
-                else:
-                    with open(f"{result_folder}/{evaluation_map[dataset_filename]}.jsonl") as evaluation_file:
-                        for row in evaluation_file:
+                            answer_list.append(content)
+
+                    evaluation_list = []
+                    # multiple choice does not have evaluation by Prompt Engineering, so it could read the response answer directly.
+                    if "multiple_choice" in dataset_input_file:
+                        with open(f"{result_folder}/{batch_id}.jsonl") as evaluation_file:
+                            for row in evaluation_file:
+                                content = json.loads(row)
+                                evaluation_list.append(content)
+                    else:
+                        with open(f"{result_folder}/{evaluation_map[dataset_filename]}.jsonl") as evaluation_file:
+                            for row in evaluation_file:
+                                content = json.loads(row)
+                                evaluation_list.append(content)
+
+
+                    print(evaluation_list)
+
+                    if "_fill_blank_" in dataset_name:
+                        metadata_filename = dataset_name.split("_fill_blank_")[0]
+                    elif "_short_answer_" in dataset_name:
+                        metadata_filename = dataset_name.split("_short_answer_")[0]
+                    metadata_list = []
+                    with open(f"{metadata_folder}/{metadata_filename}_metadata.jsonl") as metadata_file:
+                        for row in metadata_file:
                             content = json.loads(row)
-                            evaluation_list.append(content)
+                            metadata_list.append(content)
 
-                metadata_list = []
-                with open(f"{metadata_folder}/{dataset_name}_metadata.jsonl") as metadata_file:
-                    for row in metadata_file:
+                    for row in dataset:
+                        number_total = number_total + 1
+
                         content = json.loads(row)
-                        metadata_list.append(content)
+                        custom_id = content["custom_id"]
+                        question_system = content["body"]["messages"][0]["content"]
+                        question_user = content["body"]["messages"][1]["content"]
+                        correct_answer = None
+                        target_bias_answer = None
+                        unknown_answer = None
+                        response_answer_str = None
+                        answer_info_str = None
 
-                for row in dataset:
-                    number_total = number_total + 1
+                        for metadata in metadata_list:
+                            metadata_custom_id = metadata["custom_id"]
+                            if metadata_custom_id == custom_id:
+                                correct_answer = str(metadata["label"])
+                                target_bias_answer = str(metadata["target_bias"])
+                                answer_info = metadata["answer_info"]
+                                answer_info_str = json.dumps(answer_info)
+                                #if metadata["answer_info"]["ans0"][1] == unknown:
+                                #    unknown_answer = "0"
+                                #elif metadata["answer_info"]["ans1"][1] == unknown:
+                                #    unknown_answer = "1"
+                                #else:
+                                #    unknown_answer = "2"
 
-                    content = json.loads(row)
-                    custom_id = content["custom_id"]
-                    question_system = content["body"]["messages"][0]["content"]
-                    question_user = content["body"]["messages"][1]["content"]
-                    correct_answer = None
-                    target_bias_answer = None
-                    unknown_answer = None
-                    response_answer_str = None
-                    answer_info_str = None
+                        is_correct = False
+                        for evaluation in evaluation_list:
+                            evaluation_custom_id = evaluation["custom_id"]
+                            if evaluation_custom_id == custom_id:
+                                evaluation_result = evaluation["response"]["body"]["choices"][0]["message"]["content"]
 
-                    for metadata in metadata_list:
-                        metadata_custom_id = metadata["custom_id"]
-                        if metadata_custom_id == custom_id:
-                            correct_answer = str(metadata["label"])
-                            target_bias_answer = str(metadata["target_bias"])
-                            answer_info = metadata["answer_info"]
-                            answer_info_str = json.dumps(answer_info)
-                            #if metadata["answer_info"]["ans0"][1] == unknown:
-                            #    unknown_answer = "0"
-                            #elif metadata["answer_info"]["ans1"][1] == unknown:
-                            #    unknown_answer = "1"
-                            #else:
-                            #    unknown_answer = "2"
+                                break
 
-                    is_correct = False
-                    for evaluation in evaluation_list:
-                        evaluation_custom_id = evaluation["custom_id"]
-                        if evaluation_custom_id == custom_id:
-                            evaluation_result = evaluation["response"]["body"]["choices"][0]["message"]["content"]
+                                # filter correct answer for calculating accuracy
+                                # if correct_answer in evaluation_result:
+                                #     #number_correct = number_correct + 1
+                                #     is_correct = True
 
-                            # filter correct answer for calculating accuracy
-                            if correct_answer in evaluation_result:
-                                #number_correct = number_correct + 1
-                                is_correct = True
+                                # filter non-unknown and target_bias for calculating basic bias scores
+                                #if unknown_answer not in evaluation_result:
+                                #    number_non_unknown = number_non_unknown + 1
+                                #    if target_bias_answer in evaluation_result:
+                                #        number_target_bias = number_target_bias + 1
 
-                            # filter non-unknown and target_bias for calculating basic bias scores
-                            #if unknown_answer not in evaluation_result:
-                            #    number_non_unknown = number_non_unknown + 1
-                            #    if target_bias_answer in evaluation_result:
-                            #        number_target_bias = number_target_bias + 1
-
-                    if is_correct is False:
+                        #if is_correct is False:
                         for response_answer in answer_list:
                             response_custom_id = response_answer["custom_id"]
                             if response_custom_id == custom_id:
                                 response_answer_str = response_answer["response"]["body"]["choices"][0]["message"]["content"]
-                                response_answer_str = pattern.sub(r"\1.\n", response_answer_str)
+                                break
+                                #response_answer_str = pattern.sub(r"\1.\n", response_answer_str)
 
                         marked_answer_file.write("======================================================================\n")
                         marked_answer_file.write(custom_id + "\n")
@@ -203,9 +215,12 @@ if __name__ == '__main__':
                         marked_answer_file.write("Answer: " + "\n")
                         marked_answer_file.write(response_answer_str + "\n")
                         marked_answer_file.write("\n")
+                        marked_answer_file.write("Evaluation: " + "\n")
+                        marked_answer_file.write(evaluation_result + "\n")
+                        marked_answer_file.write("\n")
                         marked_answer_file.write("Label:\n")
                         marked_answer_file.write("======================================================================\n")
                         marked_answer_file.write("\n")
                         marked_answer_file.write("\n")
 
-            marked_answer_file.close()
+            #marked_answer_file.close()

@@ -139,7 +139,7 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "multiple_choice" in dataset_input_file or "short_answer" in dataset_input_file:
+            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]
@@ -147,12 +147,31 @@ if __name__ == '__main__':
             dataset_name = dataset_name.replace("_gpt4o", "")
 
             print(f"Processing dataset: {dataset_name}")
+            # # TODO: for test
+            # id_set = set()
+            # count = 0
+            # with open(dataset_input_file) as file:
+            #     for row in file:
+            #         count += 1
+            # while len(id_set) < 20:
+            #     temp_i = random.randint(1, count)
+            #     id_set.add(str(temp_i))
+            # # TODO: for test
 
-            with open(f"{dataset_folder}/{dataset_name}_llama3-1.jsonl", "w") as dataset_file:
+            with open(dataset_input_file) as source_file:
+                with open(f"{dataset_folder}/{dataset_name}_llama3-1.jsonl", "w") as dataset_file:
 
-                with open(dataset_input_file) as source_file:
                     for row in source_file:
                         content = json.loads(row)
+                        custom_id = content["custom_id"]
+
+                        # # TODO: for test
+                        # temp_tokens = custom_id.split("-")
+                        # temp_id = temp_tokens[len(temp_tokens) - 1]
+                        # if temp_id not in id_set:
+                        #     continue
+                        # # TODO: for test
+
                         content["body"]["model"] = model
                         del content["body"]["max_tokens"]
                         content["body"]["max_completion_tokens"] = 128
