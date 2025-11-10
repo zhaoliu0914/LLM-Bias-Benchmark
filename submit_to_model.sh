@@ -3,7 +3,7 @@
 csv_file="mapping files/dataset.csv"
 # list all files from data folder.
 for file in data/*; do
-    if [[ $file == *"llama"* && $file == *"fill_blank"* ]]; then
+    if [[ $file == *"llama"* ]]; then
         echo "Processing $file"
         filename=$(echo "$file" | cut -d "/" -f 2)
         filename=$(echo "$filename" | cut -d "." -f 1)
