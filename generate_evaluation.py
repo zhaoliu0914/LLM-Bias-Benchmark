@@ -28,6 +28,8 @@ if __name__ == '__main__':
 
             if "llama3-1" not in dataset_file_path:
                 continue
+            if "debiasing" not in dataset_file_path:
+                continue
             if MULTIPLE_CHOICE in dataset_file_path:
                 continue
 
@@ -59,11 +61,25 @@ if __name__ == '__main__':
                         content = json.loads(row)
                         metadata_list.append(content)
 
+                original_dataset_filename = category_codi_list[0] + '_' + question_type + '_' + category_codi_list[1].split('_')[0]
+                original_dataset_list = []
+                with open(f"{dataset_folder}/{original_dataset_filename}.jsonl", "r") as original_dataset:
+                    for row in original_dataset:
+                        content = json.loads(row)
+                        original_dataset_list.append(content)
+
                 for row in dataset:
                     content = json.loads(row)
                     custom_id = content["custom_id"]
 
-                    user_content = content["body"]["messages"][1]["content"]
+                    if "debiasing" in dataset_file_path:
+                        for original_dataset in original_dataset_list:
+                            original_custom_id = original_dataset["custom_id"]
+                            if original_custom_id == custom_id:
+                                user_content = original_dataset["body"]["messages"][1]["content"]
+                                break
+                    else:
+                        user_content = content["body"]["messages"][1]["content"]
                     tokens = user_content.split(".")
 
                     if question_type == FILL_BLANK:

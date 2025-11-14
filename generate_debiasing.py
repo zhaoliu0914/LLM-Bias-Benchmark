@@ -25,7 +25,7 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "debiasing" in dataset_input_file:
+            if "llama3-1" not in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]
@@ -51,7 +51,7 @@ if __name__ == '__main__':
             #     id_set.add(str(temp_i))
             # # TODO: for test
 
-            #self_debiasing_file = open(f"{debiasing_folder}/{dataset_name}_self-debiasing.jsonl", "w")
+            self_debiasing_file = open(f"{debiasing_folder}/{dataset_name}_self-debiasing.jsonl", "w")
             #self_new_debiasing_file = open(f"{debiasing_folder}/{dataset_name}_self-new-debiasing.jsonl", "w")
             chain_of_thought_file = open(f"{debiasing_folder}/{dataset_name}_cot-debiasing.jsonl", "w")
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                     messages.append(assistant)
                     messages.append(user)
                     content_str = json.dumps(content)
-                    #self_debiasing_file.write(content_str + "\n")
+                    self_debiasing_file.write(content_str + "\n")
 
                     # Write new self-debiasing
                     content = json.loads(row)
@@ -319,6 +319,6 @@ if __name__ == '__main__':
                     messages.append(user)
                     content_str = json.dumps(content)
                     chain_of_thought_file.write(content_str + "\n")
-            #self_debiasing_file.close()
+            self_debiasing_file.close()
             #self_new_debiasing_file.close()
             chain_of_thought_file.close()
