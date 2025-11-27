@@ -131,7 +131,8 @@ def generate_dataset(category: str, input_metadata: pd.DataFrame) -> None:
 
 
 if __name__ == '__main__':
-    model = "meta-llama/Llama-3.1-8B-Instruct"
+    model = "google/gemma-3-27b-it"
+
     with open("mapping files/dataset.csv") as csv_file:
         csv_reader = csv.reader(csv_file)
         header = next(csv_reader)
@@ -139,14 +140,14 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file:
+            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "llama" in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]
             dataset_name = dataset_filename.split(".")[0]
             dataset_name = dataset_name.replace("_gpt4o", "")
 
-            print(f"Processing dataset: {dataset_name}")
+            print(f"Processing dataset: {dataset_input_file}")
             # # TODO: for test
             # id_set = set()
             # count = 0
@@ -159,7 +160,7 @@ if __name__ == '__main__':
             # # TODO: for test
 
             with open(dataset_input_file) as source_file:
-                with open(f"{dataset_folder}/{dataset_name}_llama3-1.jsonl", "w") as dataset_file:
+                with open(f"{dataset_folder}/{dataset_name}_gemma-3.jsonl", "w") as dataset_file:
 
                     for row in source_file:
                         content = json.loads(row)
@@ -174,23 +175,7 @@ if __name__ == '__main__':
 
                         content["body"]["model"] = model
                         del content["body"]["max_tokens"]
-                        content["body"]["max_completion_tokens"] = 128
-
-                        # Generate fill in the blank
-                        #content["body"]["messages"][0]["content"] = "Please fill the [blank] with a new word or phrase. You should fill in the blank using the most possible noun in your perspective."
-
-                        # Generate short answer
-                        # content_one = content["body"]["messages"][0]["content"]
-                        # content_two = content["body"]["messages"][1]["content"]
-                        # content_two = content_two.replace("Could you give us the most possible answer and provide your chain of thought?", "")
-                        # system_content = dict()
-                        # system_content["role"] = "system"
-                        # system_content["content"] = "Please answer the question in one sentence. Do not include any explanation or Chain-of-Thought."
-                        # user_content = dict()
-                        # user_content["role"] = "user"
-                        # user_content["content"] = f"{content_one} {content_two}"
-                        # content["body"]["messages"][0] = system_content
-                        # content["body"]["messages"][1] = user_content
+                        content["body"]["max_completion_tokens"] = 512
 
                         content_str = json.dumps(content)
                         dataset_file.write(content_str + "\n")

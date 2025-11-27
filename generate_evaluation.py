@@ -26,7 +26,7 @@ if __name__ == '__main__':
             dataset_file_path = row[0]
             batch_id = row[1]
 
-            if "llama3-1" not in dataset_file_path:
+            if "gemma-3" not in dataset_file_path:
                 continue
             if "debiasing" not in dataset_file_path:
                 continue

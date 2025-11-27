@@ -80,7 +80,7 @@ def submit_evaluation(client: AzureOpenAI) -> None:
         count = 0
         filename_list = os.listdir(folder)
         for filename in filename_list:
-            if "llama3-1" in filename and "debiasing" in filename:
+            if "gemma-3" in filename and "debiasing" in filename:
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
                     print(f"Submit {file_path} to Azure OpenAI")
@@ -94,15 +94,15 @@ def submit_evaluation(client: AzureOpenAI) -> None:
     print(f"Submitted {count} files from {folder} to OpenAI API.")
 
 
-def retrieve_batch_job_results(client: AzureOpenAI, input_csv: str,):
-    with open(input_csv) as csv_file:
+def retrieve_batch_job_results(client: AzureOpenAI):
+    with open("mapping files/evaluation.csv", mode="r") as csv_file:
         csv_reader = csv.reader(csv_file)
         header = next(csv_reader)
         for row in csv_reader:
             dataset_filename = row[0]
             batch_id = row[1]
 
-            if "llama3-1" in dataset_filename and "debiasing" in dataset_filename:
+            if "gemma-3" in dataset_filename and "debiasing" in dataset_filename:
 
                 batch_response = client.batches.retrieve(batch_id)
                 status = batch_response.status
@@ -133,5 +133,5 @@ if __name__ == '__main__':
 
     #submit_evaluation(client)
 
-    retrieve_batch_job_results(client, "mapping files/evaluation.csv")
+    retrieve_batch_job_results(client)
 
