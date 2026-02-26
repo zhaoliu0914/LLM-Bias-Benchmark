@@ -174,6 +174,7 @@ def csv_example():
         write.writerow(["1", "m"])
         write.writerow(["2", "f"])
 
+
 def read_file_line_terminator():
     line_list = []
     with open("test.txt", mode="r") as file:
@@ -183,12 +184,65 @@ def read_file_line_terminator():
     print(line_list)
 
 
+def rename_files_under_folder():
+    files = os.listdir("filler_items")
+    for file in files:
+        print(file)
+
+        tokens = file.split("gpt4o_filler_items")
+        prefix = tokens[0]
+        postfix = tokens[1]
+
+        print(f"prefix = {prefix}")
+        print(f"postfix = {postfix}")
+
+        print(f"new file name = filler_items/{prefix}filler_items_gpt4o{postfix}")
+
+        os.rename(f"filler_items/{file}", f"filler_items/{prefix}filler_items_gpt4o{postfix}")
+
+
+def generate_filler_items():
+    files = os.listdir("data")
+    for file in files:
+        if "gpt4o" in file:
+            count = 0
+            with open(f"data/{file}") as json_file:
+                for row in json_file:
+                    count += 1
+
+            dataset_name = file.split(".")[0]
+            print(f"Processing dataset: {dataset_name}")
+
+            id_set = set()
+            while len(id_set) < 72:
+                temp_i = random.randint(1, count)
+                id_set.add(str(temp_i))
+
+            print(id_set)
+
+            with open(f"data/{file}") as json_file:
+                with open(f"filler_items/{dataset_name.replace('gpt4o', '')}_filler_items_gpt4o.jsonl", "w") as dataset_file:
+
+                    for row in json_file:
+                        content = json.loads(row)
+                        custom_id = content["custom_id"]
+                        temp_tokens = custom_id.split("-")
+                        temp_id = temp_tokens[len(temp_tokens) - 1]
+                        if temp_id not in id_set:
+                            continue
+
+                        content_str = json.dumps(content)
+                        dataset_file.write(content_str + "\n")
 
 
 
 if __name__ == '__main__':
-    validation_jsonl()
+    #validation_jsonl()
     #correct_multiple_choice_answer()
+
+    #generate_filler_items()
+
+    rename_files_under_folder()
 
 
 
