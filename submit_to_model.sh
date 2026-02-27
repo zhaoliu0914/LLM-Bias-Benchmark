@@ -1,14 +1,16 @@
 #!/bin/bash
 
 number_of_gpus=2
-model="google/gemma-3-27b-it"
+model="meta-llama/Llama-3.1-8B-Instruct"
+#model="google/gemma-3-27b-it"
 csv_file="mapping files/dataset.csv"
 
 function submit_dataset() {
-    source_folder="data/*"
+    #source_folder="data/*"
+    source_folder="filler_items/*"
     # list all files from data folder.
     for file in ${source_folder}; do
-        if [[ $file == *"gemma"* ]]; then
+        if [[ $file == *"llama"* ]]; then
             echo "Processing $file"
             filename=$(echo "$file" | cut -d "/" -f 2)
             filename=$(echo "$filename" | cut -d "." -f 1)

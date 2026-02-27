@@ -8,13 +8,13 @@ from unicodedata import category
 
 
 def validation_jsonl():
-    folder = "evaluation"
+    folder = "filler_items"
     filename_list = os.listdir(folder)
     print(f"The number of files = {len(filename_list)}")
     count = 0
     for filename in filename_list:
         file_path = os.path.join(folder, filename)
-        if os.path.isfile(file_path) and "llama3-1" in file_path:
+        if os.path.isfile(file_path):
             with open(file_path) as evaluation_file:
                 print(f"validate file = {file_path}")
                 index = 0
@@ -202,34 +202,44 @@ def rename_files_under_folder():
 
 
 def generate_filler_items():
-    files = os.listdir("data")
+    #model = "gpt-4o"
+    #model = "meta-llama/Llama-3.1-8B-Instruct"
+    model = "google/gemma-3-27b-it"
+
+    files = os.listdir("filler_items")
     for file in files:
         if "gpt4o" in file:
-            count = 0
-            with open(f"data/{file}") as json_file:
-                for row in json_file:
-                    count += 1
+
+            # It's only required for initial generation
+            # count = 0
+            # with open(f"data/{file}") as json_file:
+            #     for row in json_file:
+            #         count += 1
+            # id_set = set()
+            # while len(id_set) < 72:
+            #     temp_i = random.randint(1, count)
+            #     id_set.add(str(temp_i))
+            # print(id_set)
 
             dataset_name = file.split(".")[0]
             print(f"Processing dataset: {dataset_name}")
 
-            id_set = set()
-            while len(id_set) < 72:
-                temp_i = random.randint(1, count)
-                id_set.add(str(temp_i))
-
-            print(id_set)
-
-            with open(f"data/{file}") as json_file:
-                with open(f"filler_items/{dataset_name.replace('gpt4o', '')}_filler_items_gpt4o.jsonl", "w") as dataset_file:
+            with open(f"filler_items/{file}") as json_file:
+                with open(f"filler_items/{file.replace('gpt4o', 'gemma-3')}", "w") as dataset_file:
 
                     for row in json_file:
                         content = json.loads(row)
-                        custom_id = content["custom_id"]
-                        temp_tokens = custom_id.split("-")
-                        temp_id = temp_tokens[len(temp_tokens) - 1]
-                        if temp_id not in id_set:
-                            continue
+
+                        # It's only required for initial generation
+                        # custom_id = content["custom_id"]
+                        # temp_tokens = custom_id.split("-")
+                        # temp_id = temp_tokens[len(temp_tokens) - 1]
+                        # if temp_id not in id_set:
+                        #     continue
+
+                        content["body"]["model"] = model
+                        del content["body"]["max_tokens"]
+                        content["body"]["max_completion_tokens"] = 512
 
                         content_str = json.dumps(content)
                         dataset_file.write(content_str + "\n")
@@ -237,12 +247,12 @@ def generate_filler_items():
 
 
 if __name__ == '__main__':
-    #validation_jsonl()
-    #correct_multiple_choice_answer()
+    # validation_jsonl()
+    # rename_files_under_folder()
 
-    #generate_filler_items()
+    generate_filler_items()
 
-    rename_files_under_folder()
+
 
 
 

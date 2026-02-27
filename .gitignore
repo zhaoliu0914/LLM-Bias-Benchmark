@@ -2,3 +2,5 @@ project.env
 .idea
 templates/*
 openai.log
+.DS_Store
+**/.DS_Store
