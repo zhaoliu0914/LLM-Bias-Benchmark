@@ -26,7 +26,7 @@ function submit_debiasing() {
     source_folder="debiasing/*"
     # list all files from data folder.
     for file in ${source_folder}; do
-        if [[ $file == *"gemma"* ]]; then
+        if [[ $file == *"llama"* && $file == *"filler_items"* ]]; then
             echo "Processing $file"
             filename=$(echo "$file" | cut -d "/" -f 2)
             filename=$(echo "$filename" | cut -d "." -f 1)
@@ -38,5 +38,6 @@ function submit_debiasing() {
 }
 
 
-submit_dataset
+#submit_dataset
+submit_debiasing
 

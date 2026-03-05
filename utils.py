@@ -8,7 +8,7 @@ from unicodedata import category
 
 
 def validation_jsonl():
-    folder = "filler_items"
+    folder = "evaluation"
     filename_list = os.listdir(folder)
     print(f"The number of files = {len(filename_list)}")
     count = 0
@@ -247,10 +247,10 @@ def generate_filler_items():
 
 
 if __name__ == '__main__':
-    # validation_jsonl()
+    validation_jsonl()
     # rename_files_under_folder()
 
-    generate_filler_items()
+    #generate_filler_items()
 
 
 

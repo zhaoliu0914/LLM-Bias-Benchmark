@@ -26,9 +26,9 @@ if __name__ == '__main__':
             dataset_file_path = row[0]
             batch_id = row[1]
 
-            if "gemma-3" not in dataset_file_path:
-                continue
-            if "debiasing" not in dataset_file_path:
+            # if "gemma-3" not in dataset_file_path:
+            #     continue
+            if "filler_items" not in dataset_file_path:
                 continue
             if MULTIPLE_CHOICE in dataset_file_path:
                 continue
@@ -42,9 +42,9 @@ if __name__ == '__main__':
             else:
                 question_type = SHORT_ANSWER
 
-            evaluation_file = open(f"{evaluation_folder}/{dataset_filename}.jsonl", "w")
-
             print(f"Processing dataset file = {dataset_file_path}")
+
+            evaluation_file = open(f"{evaluation_folder}/{dataset_filename}.jsonl", "w")
 
             with open(f"{dataset_file_path}") as dataset:
                 response_list = []
@@ -61,9 +61,15 @@ if __name__ == '__main__':
                         content = json.loads(row)
                         metadata_list.append(content)
 
-                original_dataset_filename = category_codi_list[0] + '_' + question_type + '_' + category_codi_list[1].split('_')[0]
+                if "filler_items" in category_codi_list[1]:
+                    dataset_source = "filler_items"
+                    model_debiasing = category_codi_list[1].replace("filler_items_", "")
+                    original_dataset_filename = category_codi_list[0] + '_' + question_type + '_filler_items_' + model_debiasing.split('_')[0]
+                else:
+                    dataset_source = dataset_folder
+                    original_dataset_filename = category_codi_list[0] + '_' + question_type + '_' + category_codi_list[1].split('_')[0]
                 original_dataset_list = []
-                with open(f"{dataset_folder}/{original_dataset_filename}.jsonl", "r") as original_dataset:
+                with open(f"{dataset_source}/{original_dataset_filename}.jsonl", "r") as original_dataset:
                     for row in original_dataset:
                         content = json.loads(row)
                         original_dataset_list.append(content)

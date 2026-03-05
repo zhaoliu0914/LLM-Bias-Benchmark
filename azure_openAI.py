@@ -50,12 +50,9 @@ def submit_batch_job(client: AzureOpenAI, input_file: str) -> str:
         # Optional you can set to a number between 1209600-2592000. This is equivalent to 14-30 days
     )
 
-    #print(file.model_dump_json(indent=2))
-
     print(f"File expiration: {datetime.fromtimestamp(file.expires_at) if file.expires_at is not None else 'Not set'}")
 
     file_id = file.id
-
     batch_response = client.batches.create(
         input_file_id=file_id,
         endpoint="/v1/chat/completions",
@@ -71,6 +68,31 @@ def submit_batch_job(client: AzureOpenAI, input_file: str) -> str:
     return batch_id
 
 
+def submit_datasets(client: AzureOpenAI) -> None:
+    # setup for input folder
+    #folder = "data"
+    folder = "debiasing"
+    #folder = "filler_items"
+    # setup for recording .csv file
+    with open("mapping files/dataset.csv", mode="a") as csv_file:
+        csv_writer = csv.writer(csv_file, lineterminator="\n")
+        count = 0
+        filename_list = os.listdir(folder)
+        for filename in filename_list:
+            if "gpt4o" in filename and "filler_items" in filename:
+                file_path = os.path.join(folder, filename)
+                if os.path.isfile(file_path):
+                    print(f"Submit {file_path} to Azure OpenAI")
+                    count += 1
+                    batch_job_id = submit_batch_job(client, file_path)
+                    csv_writer.writerow([file_path, batch_job_id])
+
+                    # if count % 15 == 0:
+                    #     sleep(600)
+
+    print(f"Submitted {count} files from {folder} to OpenAI API.")
+
+
 def submit_evaluation(client: AzureOpenAI) -> None:
     # setup for input folder
     folder = "evaluation"
@@ -80,7 +102,7 @@ def submit_evaluation(client: AzureOpenAI) -> None:
         count = 0
         filename_list = os.listdir(folder)
         for filename in filename_list:
-            if "gemma-3" in filename and "debiasing" in filename:
+            if "filler_items" in filename:
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
                     print(f"Submit {file_path} to Azure OpenAI")
@@ -88,13 +110,14 @@ def submit_evaluation(client: AzureOpenAI) -> None:
                     batch_job_id = submit_batch_job(client, file_path)
                     csv_writer.writerow([file_path, batch_job_id])
 
-                    if count % 15 == 0:
-                        sleep(600)
+                    if count % 100 == 0:
+                        sleep(500)
 
     print(f"Submitted {count} files from {folder} to OpenAI API.")
 
 
 def retrieve_batch_job_results(client: AzureOpenAI):
+    #with open("mapping files/dataset.csv", mode="r") as csv_file:
     with open("mapping files/evaluation.csv", mode="r") as csv_file:
         csv_reader = csv.reader(csv_file)
         header = next(csv_reader)
@@ -102,7 +125,7 @@ def retrieve_batch_job_results(client: AzureOpenAI):
             dataset_filename = row[0]
             batch_id = row[1]
 
-            if "gemma-3" in dataset_filename and "debiasing" in dataset_filename:
+            if "filler_items" in dataset_filename:
 
                 batch_response = client.batches.retrieve(batch_id)
                 status = batch_response.status
@@ -130,6 +153,8 @@ if __name__ == '__main__':
         api_version="2025-03-01-preview",
         azure_endpoint="https://llm-bias-project.openai.azure.com/"  # os.getenv("AZURE_OPENAI_ENDPOINT")
     )
+
+    #submit_datasets(client)
 
     #submit_evaluation(client)
 
