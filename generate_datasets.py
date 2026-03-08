@@ -131,7 +131,7 @@ def generate_dataset(category: str, input_metadata: pd.DataFrame) -> None:
 
 
 if __name__ == '__main__':
-    model = "google/gemma-3-27b-it"
+    model = "gpt-o3mini"
 
     with open("mapping files/dataset.csv") as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -140,7 +140,7 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "debiasing" in dataset_input_file or "gpt3-5" in dataset_input_file or "llama" in dataset_input_file:
+            if "debiasing" in dataset_input_file or "filler_items" in dataset_input_file or "gpt3-5" in dataset_input_file or "llama" in dataset_input_file or "gemma" in dataset_input_file:
                 continue
 
             dataset_filename = dataset_input_file.split("/")[1]
@@ -160,7 +160,7 @@ if __name__ == '__main__':
             # # TODO: for test
 
             with open(dataset_input_file) as source_file:
-                with open(f"{dataset_folder}/{dataset_name}_gemma-3.jsonl", "w") as dataset_file:
+                with open(f"{dataset_folder}/{dataset_name}_gpt-o3mini.jsonl", "w") as dataset_file:
 
                     for row in source_file:
                         content = json.loads(row)
@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
                         content["body"]["model"] = model
                         del content["body"]["max_tokens"]
-                        content["body"]["max_completion_tokens"] = 512
+                        content["body"]["max_completion_tokens"] = 8000
 
                         content_str = json.dumps(content)
                         dataset_file.write(content_str + "\n")

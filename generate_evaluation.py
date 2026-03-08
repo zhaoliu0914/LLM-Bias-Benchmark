@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
             # if "gemma-3" not in dataset_file_path:
             #     continue
-            if "filler_items" not in dataset_file_path:
+            if "gpt-o3mini" not in dataset_file_path:
                 continue
             if MULTIPLE_CHOICE in dataset_file_path:
                 continue
@@ -219,7 +219,7 @@ if __name__ == '__main__':
                                        f'Options: 0: Cannot answer 1: 58-year-old 2: 28-year-old \\n ' \
                                        f'Answer: 2: 28-year-old"}}, ' \
                                f'{{"role": "user", "content": "'
-                    str2 = '"}], "max_tokens": 2000}}'
+                    str2 = '"}], "max_tokens": 4000}}'
 
                     evaluation_file.write(str1)
                     evaluation_file.write(question + "\\n")

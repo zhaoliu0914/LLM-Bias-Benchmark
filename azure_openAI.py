@@ -79,7 +79,7 @@ def submit_datasets(client: AzureOpenAI) -> None:
         count = 0
         filename_list = os.listdir(folder)
         for filename in filename_list:
-            if "gpt4o" in filename and "filler_items" in filename:
+            if "gpt-o3mini" in filename:
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
                     print(f"Submit {file_path} to Azure OpenAI")
@@ -87,8 +87,8 @@ def submit_datasets(client: AzureOpenAI) -> None:
                     batch_job_id = submit_batch_job(client, file_path)
                     csv_writer.writerow([file_path, batch_job_id])
 
-                    # if count % 15 == 0:
-                    #     sleep(600)
+                    if count % 10 == 0:
+                        sleep(600)
 
     print(f"Submitted {count} files from {folder} to OpenAI API.")
 
@@ -102,7 +102,7 @@ def submit_evaluation(client: AzureOpenAI) -> None:
         count = 0
         filename_list = os.listdir(folder)
         for filename in filename_list:
-            if "filler_items" in filename:
+            if "gpt-o3mini" in filename:
                 file_path = os.path.join(folder, filename)
                 if os.path.isfile(file_path):
                     print(f"Submit {file_path} to Azure OpenAI")
@@ -110,7 +110,7 @@ def submit_evaluation(client: AzureOpenAI) -> None:
                     batch_job_id = submit_batch_job(client, file_path)
                     csv_writer.writerow([file_path, batch_job_id])
 
-                    if count % 100 == 0:
+                    if count % 10 == 0:
                         sleep(500)
 
     print(f"Submitted {count} files from {folder} to OpenAI API.")
@@ -125,8 +125,7 @@ def retrieve_batch_job_results(client: AzureOpenAI):
             dataset_filename = row[0]
             batch_id = row[1]
 
-            if "filler_items" in dataset_filename:
-
+            if "gpt-o3mini" in dataset_filename:
                 batch_response = client.batches.retrieve(batch_id)
                 status = batch_response.status
                 output_file_id = batch_response.output_file_id
@@ -138,10 +137,9 @@ def retrieve_batch_job_results(client: AzureOpenAI):
                     with open(f"results/{batch_id}.jsonl", mode="w") as batch_file:
                         batch_file.write(file_response.text)
 
-                elif error_file_id is not None:
+                if error_file_id is not None:
                     print(f"There are errors occurring in batch input file = {row[0]}, and batch id = {batch_id}")
-                else:
-                    print("The batch has not complete!")
+
 
 
 if __name__ == '__main__':

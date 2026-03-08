@@ -319,10 +319,10 @@ def load_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
 if __name__ == '__main__':
     bias_score_map = dict()
     accuracy_map = dict()
-    models = ["gpt4o", "llama3-1", "gemma-3"]
+    models = ["gpt4o", "llama3-1", "gemma-3", "gpt-o3mini"]
 
-    #calculate_bias_accuracy_score(bias_score_map, accuracy_map)
-    load_bias_accuracy_score(bias_score_map, accuracy_map)
+    calculate_bias_accuracy_score(bias_score_map, accuracy_map)
+    #load_bias_accuracy_score(bias_score_map, accuracy_map)
 
     # plot the final results
     for model in models:
@@ -330,7 +330,7 @@ if __name__ == '__main__':
         plot_tables("accuracy", accuracy_map, model)
 
         # plot the filler items
-        plot_tables("bias_score", bias_score_map, f"filler_items_{model}")
-        plot_tables("accuracy", accuracy_map, f"filler_items_{model}")
+        # plot_tables("bias_score", bias_score_map, f"filler_items_{model}")
+        # plot_tables("accuracy", accuracy_map, f"filler_items_{model}")
 
 

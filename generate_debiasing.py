@@ -25,10 +25,10 @@ if __name__ == '__main__':
             dataset_input_file = csv_row[0]
             batch_id = csv_row[1]
 
-            if "filler_items" not in dataset_input_file:
+            if "gpt-o3mini" not in dataset_input_file:
                 continue
-            if "gpt4o" not in dataset_input_file:
-                continue
+            # if "gpt4o" not in dataset_input_file:
+            #     continue
 
             dataset_filename = dataset_input_file.split("/")[1]
             dataset_name = dataset_filename.split(".")[0]
@@ -115,6 +115,7 @@ if __name__ == '__main__':
 
                     # Write self-debiasing
                     content = json.loads(row)
+                    content["body"]["max_completion_tokens"] = 30000
                     messages = content["body"]["messages"]
                     user = dict()
                     user["role"] = "user"
@@ -133,6 +134,7 @@ if __name__ == '__main__':
                         question_question = question_question.replace("Could you give us the most possible answer and provide your chain of thought?", "")
                         question_content = question_content + " " + question_question
                     content["body"]["messages"] = []
+                    content["body"]["max_completion_tokens"] = 30000
                     messages = content["body"]["messages"]
 
                     if question_type == MULTIPLE_CHOICE:
