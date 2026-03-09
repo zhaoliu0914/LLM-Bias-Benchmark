@@ -27,8 +27,8 @@ if __name__ == '__main__':
 
             if "gpt-o3mini" not in dataset_input_file:
                 continue
-            # if "gpt4o" not in dataset_input_file:
-            #     continue
+            if "filler_items" not in dataset_input_file:
+                continue
 
             dataset_filename = dataset_input_file.split("/")[1]
             dataset_name = dataset_filename.split(".")[0]

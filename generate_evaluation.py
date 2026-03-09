@@ -26,9 +26,9 @@ if __name__ == '__main__':
             dataset_file_path = row[0]
             batch_id = row[1]
 
-            # if "gemma-3" not in dataset_file_path:
-            #     continue
             if "gpt-o3mini" not in dataset_file_path:
+                continue
+            if "filler_items" not in dataset_file_path:
                 continue
             if MULTIPLE_CHOICE in dataset_file_path:
                 continue

@@ -330,7 +330,7 @@ if __name__ == '__main__':
         plot_tables("accuracy", accuracy_map, model)
 
         # plot the filler items
-        # plot_tables("bias_score", bias_score_map, f"filler_items_{model}")
-        # plot_tables("accuracy", accuracy_map, f"filler_items_{model}")
+        plot_tables("bias_score", bias_score_map, f"filler_items_{model}")
+        plot_tables("accuracy", accuracy_map, f"filler_items_{model}")
 
 

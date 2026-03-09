@@ -203,8 +203,10 @@ def rename_files_under_folder():
 
 def generate_filler_items():
     #model = "gpt-4o"
+    model = "gpt-o3mini"
     #model = "meta-llama/Llama-3.1-8B-Instruct"
-    model = "google/gemma-3-27b-it"
+    #model = "google/gemma-3-27b-it"
+
 
     files = os.listdir("filler_items")
     for file in files:
@@ -225,7 +227,7 @@ def generate_filler_items():
             print(f"Processing dataset: {dataset_name}")
 
             with open(f"filler_items/{file}") as json_file:
-                with open(f"filler_items/{file.replace('gpt4o', 'gemma-3')}", "w") as dataset_file:
+                with open(f"filler_items/{file.replace('gpt4o', 'gpt-o3mini')}", "w") as dataset_file:
 
                     for row in json_file:
                         content = json.loads(row)
@@ -239,7 +241,7 @@ def generate_filler_items():
 
                         content["body"]["model"] = model
                         del content["body"]["max_tokens"]
-                        content["body"]["max_completion_tokens"] = 512
+                        content["body"]["max_completion_tokens"] = 20000
 
                         content_str = json.dumps(content)
                         dataset_file.write(content_str + "\n")
