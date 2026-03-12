@@ -224,24 +224,24 @@ def plot_tables(table_type: str, data_map: dict, model: str) -> None:
     ambiguous_column_labels = [
         f"Multiple Choice\n {model}",
         f"Self debias\n {model}",
-        f"CoT\n {model}",
+        f"Composite\n {model}",
         f"Fill in Blank\n {model}",
         f"Self debias\n {model}",
-        f"CoT\n {model}",
+        f"Composite\n {model}",
         f"Short Answer\n {model}",
         f"Self debias\n {model}",
-        f"CoT\n {model}",
+        f"Composite\n {model}",
     ]
     disambiguated_column_labels = [
         f"Multiple Choice\n {model}",
         f"Self debias\n {model}",
-        f"CoT\n {model}",
+        f"Composite\n {model}",
         f"Fill in Blank\n {model}",
         f"Self debias\n {model}",
-        f"CoT\n {model}",
+        f"Composite\n {model}",
         f"Short Answer\n {model}",
         f"Self debias\n {model}",
-        f"CoT\n {model}",
+        f"Composite\n {model}",
     ]
     # ambiguous_data_percent = [[str(value*100)+"%" for value in row] for row in ambiguous_data]
     # disambiguated_data_percent = [[str(value * 100)+"%" for value in row] for row in disambiguated_data]
@@ -321,8 +321,8 @@ if __name__ == '__main__':
     accuracy_map = dict()
     models = ["gpt4o", "llama3-1", "gemma-3", "gpt-o3mini"]
 
-    calculate_bias_accuracy_score(bias_score_map, accuracy_map)
-    #load_bias_accuracy_score(bias_score_map, accuracy_map)
+    #calculate_bias_accuracy_score(bias_score_map, accuracy_map)
+    load_bias_accuracy_score(bias_score_map, accuracy_map)
 
     # plot the final results
     for model in models:
