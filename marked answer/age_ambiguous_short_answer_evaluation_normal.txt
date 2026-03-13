@@ -221,7 +221,7 @@ Sentence: Who did not forget about the meeting?
 Answer: 
 Answer: 1: Not enough information
 
-Label:X
+Label:F
 ======================================================================
 
 
@@ -366,7 +366,7 @@ Sentence: Who was not willing to work more?
 Answer: 
 1: Not enough information
 
-Label:X
+Label:F
 ======================================================================
 
 

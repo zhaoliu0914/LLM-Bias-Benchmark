@@ -1,4 +1,5 @@
 import os
+import re
 import csv
 import json
 import random
@@ -247,14 +248,167 @@ def generate_filler_items():
                         dataset_file.write(content_str + "\n")
 
 
+def generate_assess_evaluation():
+    templates_folder = "templates"
+    dataset_folder = "data"
+    metadata_folder = "metadata"
+    result_folder = "results"
+    evaluation_folder = "evaluation"
+
+    number_total = 0
+    with open(f"test.txt", "w") as marked_answer_file:
+
+        with open("mapping files/dataset.csv") as csv_file:
+            csv_reader = csv.reader(csv_file)
+            header = next(csv_reader)
+
+            evaluation_map = dict()
+            with open("mapping files/evaluation.csv") as evaluation_csv_file:
+                evaluation_csv_reader = csv.reader(evaluation_csv_file)
+                evaluation_header = next(evaluation_csv_reader)
+                for row in evaluation_csv_reader:
+                    evaluation_input_file = row[0]
+                    batch_id = row[1]
+                    evaluation_filename = evaluation_input_file.split("/")[1]
+                    evaluation_map[evaluation_filename] = batch_id
+
+            for csv_row in csv_reader:
+                dataset_input_file = csv_row[0]
+                batch_id = csv_row[1]
+
+                dataset_filename = dataset_input_file.split("/")[1]
+                dataset_name = dataset_filename.split(".")[0]
+                #print(f"dataset_name = {dataset_name}")
+                if "age" in dataset_name or "nationality" in dataset_name:
+                    continue
+                if "debiasing" in dataset_name or "filler_items" in dataset_name:
+                    continue
+                if "ambiguous" in dataset_name:
+                    continue
+                if "multiple_choice" in dataset_name:
+                    continue
+                if "gpt3-5" in dataset_name or "gpt4o" in dataset_name or "llama3-1" in dataset_name:
+                    continue
+
+                print(f"Processing dataset {dataset_name}")
+
+                id_set = set()
+                count = 0
+                with open(dataset_input_file) as file:
+                    for row in file:
+                        count += 1
+                while len(id_set) < 15:
+                    temp_i = random.randint(1, count)
+                    id_set.add(str(temp_i))
+
+                with open(f"{dataset_input_file}") as dataset:
+                    answer_list = []
+                    with open(f"{result_folder}/{batch_id}.jsonl") as answer_file:
+                        for row in answer_file:
+                            content = json.loads(row)
+                            answer_list.append(content)
+
+                    evaluation_list = []
+                    # multiple choice does not have evaluation by Prompt Engineering, so it could read the response answer directly.
+                    if "multiple_choice" in dataset_input_file:
+                        with open(f"{result_folder}/{batch_id}.jsonl") as evaluation_file:
+                            for row in evaluation_file:
+                                content = json.loads(row)
+                                evaluation_list.append(content)
+                    else:
+                        with open(f"{result_folder}/{evaluation_map[dataset_filename]}.jsonl") as evaluation_file:
+                            for row in evaluation_file:
+                                content = json.loads(row)
+                                evaluation_list.append(content)
+
+                    if "_fill_blank_" in dataset_name:
+                        metadata_filename = dataset_name.split("_fill_blank_")[0]
+                    elif "_short_answer_" in dataset_name:
+                        metadata_filename = dataset_name.split("_short_answer_")[0]
+                    metadata_list = []
+                    with open(f"{metadata_folder}/{metadata_filename}_metadata.jsonl") as metadata_file:
+                        for row in metadata_file:
+                            content = json.loads(row)
+                            metadata_list.append(content)
+
+                    for row in dataset:
+                        content = json.loads(row)
+                        custom_id = content["custom_id"]
+
+                        temp_tokens = custom_id.split("-")
+                        temp_id = temp_tokens[len(temp_tokens) - 1]
+                        if temp_id not in id_set:
+                            continue
+
+                        question_system = content["body"]["messages"][0]["content"]
+                        question_user = content["body"]["messages"][1]["content"]
+                        correct_answer = None
+                        target_bias_answer = None
+                        unknown_answer = None
+                        response_answer_str = None
+                        answer_info_str = None
+
+                        for metadata in metadata_list:
+                            metadata_custom_id = metadata["custom_id"]
+                            if metadata_custom_id == custom_id:
+                                correct_answer = str(metadata["label"])
+                                target_bias_answer = str(metadata["target_bias"])
+                                answer_info = metadata["answer_info"]
+                                answer_info_str = json.dumps(answer_info)
+                                break
+
+                        for evaluation in evaluation_list:
+                            evaluation_custom_id = evaluation["custom_id"]
+                            if evaluation_custom_id == custom_id:
+                                evaluation_result = evaluation["response"]["body"]["choices"][0]["message"]["content"]
+                                break
+
+                        # if is_correct is False:
+                        for response_answer in answer_list:
+                            response_custom_id = response_answer["custom_id"]
+                            if response_custom_id == custom_id:
+                                response_answer_str = response_answer["response"]["body"]["choices"][0]["message"]["content"]
+                                break
+                                # response_answer_str = pattern.sub(r"\1.\n", response_answer_str)
+
+                        marked_answer_file.write(
+                            "======================================================================\n")
+                        marked_answer_file.write(custom_id + "\n")
+                        marked_answer_file.write("Question:" + "\n")
+                        marked_answer_file.write(question_system + "\n")
+                        marked_answer_file.write(question_user + "\n")
+                        marked_answer_file.write("\n")
+                        marked_answer_file.write("Options:\n")
+                        marked_answer_file.write(answer_info_str + "\n")
+                        marked_answer_file.write("Correct Answer:\n")
+                        marked_answer_file.write(correct_answer + "\n")
+                        marked_answer_file.write("Target Bias:\n")
+                        marked_answer_file.write(target_bias_answer + "\n")
+                        marked_answer_file.write("Answer: " + "\n")
+                        marked_answer_file.write(response_answer_str + "\n")
+                        marked_answer_file.write("\n")
+                        marked_answer_file.write("Evaluation: " + "\n")
+                        marked_answer_file.write(evaluation_result + "\n")
+                        marked_answer_file.write("\n")
+                        marked_answer_file.write("Label:\n")
+                        marked_answer_file.write(
+                            "======================================================================\n")
+                        marked_answer_file.write("\n")
+                        marked_answer_file.write("\n")
+
+                        number_total = number_total + 1
+                        if number_total == 460:
+                            print(f"Finished generate 460 Assess Evaluation records.")
+                            return
+
 
 if __name__ == '__main__':
-    validation_jsonl()
+    # validation_jsonl()
     # rename_files_under_folder()
 
     #generate_filler_items()
 
-
+    generate_assess_evaluation()
 
 
 
