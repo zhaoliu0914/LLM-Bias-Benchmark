@@ -14,11 +14,9 @@ FILL_BLANK = "fill_blank"
 SHORT_ANSWER = "short_answer"
 
 
-def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
+def calculate_bias_accuracy_score(accuracy_map: dict, bias_score_map: dict, unknown_rate_map:dict):
     ambiguous = "ambiguous"
     unknown = "unknown"
-    # accuracy_map = dict()
-    # bias_score_map = dict()
 
     with open("mapping files/dataset.csv") as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -53,8 +51,10 @@ def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
 
             accuracy_map[dataset_name] = None
             bias_score_map[dataset_name] = None
+            unknown_rate_map[dataset_name] = None
             number_total = 0
             number_correct = 0
+            number_unknown = 0
             number_non_unknown = 0
             number_target_bias = 0
             with open(f"{dataset_input_file}") as dataset:
@@ -110,8 +110,11 @@ def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
                             if correct_answer in evaluation_result:
                                 number_correct = number_correct + 1
 
-                            # filter non-unknown and target_bias for calculating basic bias scores
-                            if unknown_answer not in evaluation_result:
+                            if unknown_answer in evaluation_result:
+                                # filter unknown answers for calculating unknown rate
+                                number_unknown = number_unknown + 1
+                            else:
+                                # filter non-unknown and target_bias for calculating basic bias scores
                                 number_non_unknown = number_non_unknown + 1
                                 if target_bias_answer in evaluation_result:
                                     number_target_bias = number_target_bias + 1
@@ -120,6 +123,7 @@ def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
 
             # calculate accuracy
             accuracy_map[dataset_name] = number_correct / number_total
+            unknown_rate_map[dataset_name] = number_unknown / number_total
 
             # calculate basic bias score
             if number_non_unknown != 0:
@@ -135,12 +139,12 @@ def calculate_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
         # Write to csv data file
         with open("data_results.csv", mode="w") as data_result_file:
             csv_writer = csv.writer(data_result_file, lineterminator="\n")
-            csv_writer.writerow(["dataset name", "bias score", "accuracy"])
+            csv_writer.writerow(["dataset name", "accuracy", "bias score", "unknown rate"])
 
-            for dataset in bias_score_map.keys():
-                csv_writer.writerow([dataset, bias_score_map[dataset], accuracy_map[dataset]])
+            for dataset in accuracy_map.keys():
+                csv_writer.writerow([dataset, accuracy_map[dataset], bias_score_map[dataset], unknown_rate_map[dataset]])
                 print(
-                    f"dataset = {dataset}, bias score = {bias_score_map[dataset]}, accuracy = {accuracy_map[dataset]}")
+                    f"dataset = {dataset}, accuracy = {accuracy_map[dataset]}, bias score = {bias_score_map[dataset]}, unknown rate = {unknown_rate_map[dataset]}")
 
 
 def plot_tables(table_type: str, data_map: dict, model: str) -> None:
@@ -304,33 +308,40 @@ def plot_tables(table_type: str, data_map: dict, model: str) -> None:
     print(f"Save result plot at {file_path}")
 
 
-def load_bias_accuracy_score(bias_score_map: dict, accuracy_map: dict):
+def load_bias_accuracy_score(accuracy_map: dict, bias_score_map: dict, unknown_rate_map: dict):
     with open("data_results.csv") as csv_file:
         csv_reader = csv.reader(csv_file)
         header = next(csv_reader)
         for csv_row in csv_reader:
             dataset = csv_row[0]
-            bias_score = csv_row[1]
-            accuracy = csv_row[2]
-            bias_score_map[dataset] = float(bias_score)
+            accuracy = csv_row[1]
+            bias_score = csv_row[2]
+            unknown_rate = csv_row[3]
+
             accuracy_map[dataset] = float(accuracy)
+            bias_score_map[dataset] = float(bias_score)
+            unknown_rate_map[dataset] = float(unknown_rate)
+
 
 
 if __name__ == '__main__':
-    bias_score_map = dict()
     accuracy_map = dict()
+    bias_score_map = dict()
+    unknown_rate_map = dict()
     models = ["gpt4o", "llama3-1", "gemma-3", "gpt-o3mini"]
 
-    #calculate_bias_accuracy_score(bias_score_map, accuracy_map)
-    load_bias_accuracy_score(bias_score_map, accuracy_map)
+    calculate_bias_accuracy_score(accuracy_map, bias_score_map, unknown_rate_map)
+    #load_bias_accuracy_score(accuracy_map, bias_score_map, unknown_rate_map)
 
     # plot the final results
     for model in models:
-        plot_tables("bias_score", bias_score_map, model)
         plot_tables("accuracy", accuracy_map, model)
+        plot_tables("bias_score", bias_score_map, model)
+        plot_tables("unknown_rate", unknown_rate_map, model)
 
         # plot the filler items
-        plot_tables("bias_score", bias_score_map, f"filler_items_{model}")
         plot_tables("accuracy", accuracy_map, f"filler_items_{model}")
+        plot_tables("bias_score", bias_score_map, f"filler_items_{model}")
+
 
 
