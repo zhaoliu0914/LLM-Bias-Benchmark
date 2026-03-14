@@ -15,7 +15,7 @@ python3 calculate_results.py
 ```
 [calculate_results.py](calculate_results.py) will calculate accuracy, bias score, and unknown rate for 4 models including GPT-4o, o3-mini, Gemma-3, and Llama-3.1.<br>
 The results will be plot tables and saved to [result_plots](result_plots) folders.<br>
-This code will also calculate the reulsts of filler items.
+This code will also calculate the results of filler items.
 
 ## Project structures
 The [data](data) folder contains the baseline/benchmark data for each model.<br>
